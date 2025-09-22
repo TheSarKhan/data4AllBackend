@@ -70,6 +70,11 @@ cloudinary:
 lingva-translate:
   base-url: http://localhost:3000/api/v1
 
+python:
+  analytics:
+    #    base-url: http://fastapi-backend:8000
+    base-url: http://localhost:8000
+
 faq:
   headers: 5
   subheaders: 3.4.4.1.4
