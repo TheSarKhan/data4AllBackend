@@ -36,15 +36,18 @@ spring:
         debug: true
   datasource:
     first:
-      url: jdbc:postgresql://localhost:5450/User
+#      url: jdbc:postgresql://localhost:5450/User
+      url: jdbc:postgresql://users_service:5432/User
       username: root
       password: root
     second:
-      url: jdbc:postgresql://localhost:5451/Page
+#      url: jdbc:postgresql://localhost:5451/Page
+      url: jdbc:postgresql://pages_service:5432/Page
       username: root
       password: root
     third:
-      url: jdbc:postgresql://localhost:5453/DataSet
+#      url: jdbc:postgresql://localhost:5453/DataSet
+      url: jdbc:postgresql://dataset_service:5452/DataSet
       username: root
       password: root
     fourth:
@@ -56,7 +59,9 @@ spring:
       ddl-auto: create
   data:
     redis:
-      host: localhost
+#      host: localhost
+#      port: 6379
+      host: redis
       port: 6379
       password: redispass
 
@@ -66,6 +71,9 @@ cloudinary:
   api:
     key: 668583881613156
     secret: 7jymaVAgMxu5Pc50toz0YvwJ2ro
+
+server:
+  port: 8081
 
 lingva-translate:
   base-url: http://localhost:3000/api/v1

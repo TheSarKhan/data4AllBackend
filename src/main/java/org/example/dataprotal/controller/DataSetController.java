@@ -1,8 +1,11 @@
 package org.example.dataprotal.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.DataSetDto;
+import org.example.dataprotal.dto.DataSetQueryDto;
 import org.example.dataprotal.model.dataset.DataSet;
+import org.example.dataprotal.model.dataset.DataSetQuery;
 import org.example.dataprotal.service.DataSetService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,7 +18,21 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 public class DataSetController {
     private final DataSetService service;
 
+    @GetMapping("/get/{dataSetName}")
+    @Operation(description = "Get dataSet with name")
+    public ResponseEntity<DataSetDto> getDataSet(@PathVariable String dataSetName) {
+        return ResponseEntity.ok(service.getDataSetByName(dataSetName));
+    }
+
+    @PostMapping("/query")
+    @Operation(description = "Send dataSet query")
+    public ResponseEntity<DataSetQuery> sendDataSetQuery(@RequestBody DataSetQueryDto dataSetQueryDto) {
+        final var createDataSet = service.createDataSetQuery(dataSetQueryDto);
+        final var location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").build(createDataSet.getId());
+        return ResponseEntity.created(location).body(createDataSet);
+    }
     @PostMapping
+    @Operation(description = "Upload new dataSet")
     public ResponseEntity<DataSet> createDataSet(@RequestPart("request") DataSetDto dataSetDto,
                                                 @RequestPart(required = false) MultipartFile file,
                                                 @RequestPart(required = false) MultipartFile img) {

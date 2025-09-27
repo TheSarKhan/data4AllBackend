@@ -1,5 +1,6 @@
 package org.example.dataprotal.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.ContentDto;
 import org.example.dataprotal.model.page.Content;
@@ -17,11 +18,15 @@ public class ContentController {
     private final ContentService contentService;
 
     @GetMapping
+    @Operation(summary = "Get current page content",
+            description = "Get page content with name")
     public ResponseEntity<Content> getContentByPageName(@RequestParam String pageName) {
         return ResponseEntity.ok(contentService.getContentByPageName(pageName));
     }
 
     @PostMapping
+    @Operation(summary = "Add new content",
+            description = "Add new content to existing page with name")
     public ResponseEntity<Content> addContent(@RequestPart("request") ContentDto contentDto, @RequestPart(required = false,name = "img") MultipartFile file) {
         final var createdContent = contentService.createContent(contentDto,file);
         final var location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/{id}").build(createdContent.getId());
@@ -29,6 +34,8 @@ public class ContentController {
     }
 
     @PutMapping("/{id}")
+    @Operation(summary = "Update content",
+            description = "Update existing page content")
     public ResponseEntity<Content> updateContent(@PathVariable Long id, @RequestPart("request")ContentDto contentDto, @RequestPart(required = false,name = "img") MultipartFile file) {
         final var updatedContent = contentService.updateContent(id,contentDto,file);
         final var location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/{id}").build(updatedContent.getId());

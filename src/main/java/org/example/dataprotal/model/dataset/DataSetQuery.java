@@ -6,6 +6,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 @Data
 @AllArgsConstructor
@@ -26,4 +30,7 @@ public class DataSetQuery {
     @Column(columnDefinition = "TEXT")
     String notes;
     Boolean isRobot;
+    @CreationTimestamp
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    LocalDateTime createdAt;
 }

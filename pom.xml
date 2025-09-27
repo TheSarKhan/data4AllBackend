@@ -29,6 +29,11 @@
             <version>5.2.3</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webmvc</artifactId>
+        </dependency>
+
         <!-- Spring Boot Configuration (Spring Beans içerir) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
