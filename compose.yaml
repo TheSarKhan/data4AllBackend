@@ -11,7 +11,7 @@ services:
 
   users_service:
     container_name: users
-    image: postgres:latest
+    image: postgres:18
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -19,13 +19,13 @@ services:
     ports:
       - '5450:5432'
     volumes:
-      - UserData:/var/lib/postgresql/data
+      - UserData:/var/lib/postgresql
     networks:
       - dataportal_network
 
   pages_service:
     container_name: pages
-    image: postgres:latest
+    image: postgres:18
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -33,13 +33,13 @@ services:
     ports:
       - '5451:5432'
     volumes:
-      - PageData:/var/lib/postgresql/data
+      - PageData:/var/lib/postgresql
     networks:
       - dataportal_network
 
   dataset_service:
     container_name: dataset
-    image: postgres:latest
+    image: postgres:18
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -47,13 +47,13 @@ services:
     ports:
       - '5453:5432'
     volumes:
-      - DataSet:/var/lib/postgresql/data
+      - DataSet:/var/lib/postgresql
     networks:
       - dataportal_network
 
   chatbot_service:
     container_name: chatbot
-    image: postgres:latest
+    image: postgres:18
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -61,7 +61,7 @@ services:
     ports:
       - '5454:5432'
     volumes:
-      - ChatBot:/var/lib/postgresql/data
+      - ChatBot:/var/lib/postgresql
     networks:
       - dataportal_network
 
@@ -74,11 +74,11 @@ services:
       - dataportal_network
 
 volumes:
-  UserData: { }
-  PageData: { }
-  redis_data: { }
-  DataSet: { }
-  ChatBot: { }
+  redis_data: {}
+  UserData: {}
+  PageData: {}
+  DataSet: {}
+  ChatBot: {}
 
 networks:
   dataportal_network:
