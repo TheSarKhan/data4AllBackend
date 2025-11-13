@@ -22,6 +22,7 @@ public class DataSet {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
     String author;
+    String category;
     String dataSetName;
     String title;
 

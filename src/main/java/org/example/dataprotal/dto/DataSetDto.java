@@ -1,6 +1,5 @@
 package org.example.dataprotal.dto;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,7 +7,10 @@ import lombok.Setter;
 @Setter
 public class DataSetDto {
     String author;
+    String category;
     String dataSetName;
     String title;
     String description;
+    String imageUrl;
+    String fileUrl;
 }
