@@ -32,7 +32,10 @@ public class CardService {
     }
 
     public Card getCardById(Long id) {
-        return cardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Card not found"));
+       Card card = cardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Card not found"));
+       card.setViews(card.getViews() + 1);
+       cardRepository.save(card);
+        return card;
     }
 
     public Card addSubContent(Long id, SubContent subContent) {
@@ -41,4 +44,10 @@ public class CardService {
         return cardRepository.save(card);
     }
 
+    public Card likeCard(Long id) {
+        Card card = cardRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Card not found"));
+        card.setLikes(card.getLikes() + 1);
+        cardRepository.save(card);
+        return card;
+    }
 }
