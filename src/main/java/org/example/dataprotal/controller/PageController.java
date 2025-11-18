@@ -44,6 +44,12 @@ public class PageController {
         return ResponseEntity.created(location).body(updatedPage);
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?>deletePage(@PathVariable Long id) {
+        pageService.deletePage(id);
+        return ResponseEntity.noContent().build();
+    }
+
 
     @GetMapping
     @Operation(summary = "Get page informations",

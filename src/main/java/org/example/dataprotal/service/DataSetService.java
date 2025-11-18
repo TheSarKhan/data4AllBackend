@@ -12,6 +12,7 @@ import org.example.dataprotal.repository.dataset.DataSetRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,4 +65,7 @@ public class DataSetService {
                 );
     }
 
+    public List<DataSet> getAllDataSet() {
+        return repository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    }
 }

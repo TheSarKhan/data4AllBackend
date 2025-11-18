@@ -20,11 +20,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DataSetController {
     private final DataSetService service;
+    private final DataSetService dataSetService;
 
     @GetMapping("/get/{dataSetName}")
     @Operation(description = "Get dataSet with name")
     public ResponseEntity<DataSet> getDataSet(@PathVariable String dataSetName) {
         return ResponseEntity.ok(service.getDataSetByName(dataSetName));
+    }
+
+    @GetMapping("/get/all")
+    public ResponseEntity<List<DataSet>> getAllDataSet() {
+        return ResponseEntity.ok(dataSetService.getAllDataSet());
     }
 
     @GetMapping("/get/all/{category}")

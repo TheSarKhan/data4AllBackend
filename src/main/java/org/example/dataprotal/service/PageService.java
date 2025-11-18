@@ -38,4 +38,8 @@ public class PageService {
     public Page getPageByName(String pageName) {
         return pageRepository.findByName(pageName).orElseThrow(()-> new RuntimeException("Page not found"));
     }
+
+    public void deletePage(Long id) {
+        pageRepository.deleteById(id);
+    }
 }
