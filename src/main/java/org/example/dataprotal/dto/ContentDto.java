@@ -17,5 +17,5 @@ public class ContentDto {
     String title;
     String topic;
     List<SubContent> subContents;
-    AnalyticContent analyticContent;
+    List<AnalyticContent> analyticContents;
 }

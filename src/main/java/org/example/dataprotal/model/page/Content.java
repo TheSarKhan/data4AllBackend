@@ -28,5 +28,5 @@ public class Content {
     List<SubContent> subContents;
 
     @JdbcTypeCode(SqlTypes.JSON)
-    AnalyticContent analyticContent;
+    List<AnalyticContent> analyticContents;
 }
