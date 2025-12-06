@@ -4,6 +4,7 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldDefaults;
+import org.example.dataprotal.model.page.AnalyticContent;
 import org.example.dataprotal.model.page.SubContent;
 
 import java.util.List;
@@ -16,4 +17,5 @@ public class ContentDto {
     String title;
     String topic;
     List<SubContent> subContents;
+    AnalyticContent analyticContent;
 }

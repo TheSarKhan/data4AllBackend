@@ -26,4 +26,7 @@ public class Content {
 
     @JdbcTypeCode(SqlTypes.JSON)
     List<SubContent> subContents;
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    AnalyticContent analyticContent;
 }
