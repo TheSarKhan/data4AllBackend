@@ -11,6 +11,7 @@ import org.example.dataprotal.payment.dto.PayriffInvoiceRequest;
 import org.example.dataprotal.payment.dto.PayriffInvoiceResponse;
 import org.example.dataprotal.payment.service.PayriffService;
 import org.example.dataprotal.repository.user.UserRepository;
+import org.example.dataprotal.service.impl.LogService;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -25,6 +26,7 @@ public class PayriffServiceImpl implements PayriffService {
     private final PayriffConfig payriffConfig;
     private final UserRepository userRepository;
     private final JwtService jwtService;
+    private final LogService logService;
     private final RestTemplate restTemplate = new RestTemplate();
 
     @Override
@@ -37,7 +39,7 @@ public class PayriffServiceImpl implements PayriffService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer" + token);
-
+        logService.save("Make payment", user.getId());
         return makePayment(payriffInvoiceRequest, user, headers);
     }
 
@@ -47,6 +49,7 @@ public class PayriffServiceImpl implements PayriffService {
         headers.setContentType(MediaType.APPLICATION_JSON);
         headers.set("Authorization", "Bearer " + jwtService.generateAccessToken(user.getEmail(), null));
 
+        logService.save("Make payment with user", user.getId());
         return makePayment(payriffInvoiceRequest, user, headers);
     }
 

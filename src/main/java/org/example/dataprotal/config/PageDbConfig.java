@@ -21,11 +21,10 @@ import java.util.Map;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-        basePackages = "org.example.dataprotal.repository.page",
+        basePackages = "org.example.dataprotal.repository.analytics",
         entityManagerFactoryRef = "secondEntityManagerFactory",
         transactionManagerRef = "secondTransactionManager"
 )
-
 public class PageDbConfig {
 
     @Value("${spring.datasource.second.url}")
@@ -54,7 +53,7 @@ public class PageDbConfig {
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(secondDataSource())
-                .packages("org.example.dataprotal.model.page")
+                .packages("org.example.dataprotal.model.analytics")
                 .persistenceUnit("second")
                 .properties(hibernateProperties())
                 .build();

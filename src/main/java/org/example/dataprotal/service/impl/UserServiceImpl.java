@@ -72,6 +72,8 @@ public class UserServiceImpl implements UserService {
 
     private final EmailService emailService;
 
+    private final LogService logService;
+
     @Value("${spring.application.base-url}")
     private String baseUrl;
 
@@ -168,8 +170,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public String  updateProfile(ProfileUpdateRequest request,
-                                         MultipartFile profileImage) throws AuthException, IOException, MessagingException {
+    public String updateProfile(ProfileUpdateRequest request,
+                                MultipartFile profileImage) throws AuthException, IOException, MessagingException {
         log.info("Update profile : {}", request);
         User currentUser = getCurrentUser();
         log.info("Current user : {}", currentUser.getEmail());
@@ -180,7 +182,7 @@ public class UserServiceImpl implements UserService {
         currentUser.setWorkplace(request.workplace());
         currentUser.setPosition(request.position());
         currentUser.setUpdatedAt(LocalDateTime.now());
-        if (!currentUser.getEmail().equals(request.email())){
+        if (!currentUser.getEmail().equals(request.email())) {
             currentUser.setEmail(request.email());
             currentUser.setVerified(false);
             String verificationToken = UUID.randomUUID().toString();
@@ -195,6 +197,7 @@ public class UserServiceImpl implements UserService {
         }
         userRepository.save(currentUser);
         cloudinaryService.deleteFile(oldProfileImageUrl);
+        logService.save("Update user profile:" + currentUser.getId(), currentUser.getId());
         return "User updated successfully.";
     }
 
@@ -203,6 +206,7 @@ public class UserServiceImpl implements UserService {
         log.info("Update language : {}", language);
         User user = getCurrentUser();
         user.setLanguage(Language.valueOf(language.toUpperCase()));
+        logService.save("Changed language to " + language, user.getId());
         return userToProfileResponse(userRepository.save(user));
     }
 
@@ -214,6 +218,7 @@ public class UserServiceImpl implements UserService {
         currentUser.setDeactivateTime(LocalDateTime.now());
         currentUser.setDeactivateReason(deactivateReason);
         userRepository.save(currentUser);
+        logService.save("DeActive user profile beacuse:" + deactivateReason, currentUser.getId());
         return messageSource.getMessage("user.deactivated", null,
                 new Locale(currentUser.getLanguage().name().toLowerCase()));
     }
@@ -222,6 +227,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseForAdmin deactivateUserWithId(Long id, String reason) {
         log.info("Deactivate user with id : {}", id);
         User user = getById(id);
+        logService.save("DeActive user with this id:" + id, id);
         return deactivateUser(reason, user);
     }
 
@@ -229,6 +235,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseForAdmin deactivateUserWithEmail(String email, String reason) {
         log.info("Deactivate user with email : {}", email);
         User user = getByEmail(email);
+        logService.save("DeActive user with this email:" + email, user.getId());
         return deactivateUser(reason, user);
     }
 
@@ -236,6 +243,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseForAdmin activateUserWithId(Long id) {
         log.info("Activate user with id : {}", id);
         User user = getById(id);
+        logService.save("Active user with this id:" + id, id);
         return activateUser(user);
     }
 
@@ -243,6 +251,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseForAdmin activateUserWithEmail(String email) {
         log.info("Activate user with email : {}", email);
         User user = getByEmail(email);
+        logService.save("Active user with this email:" + email, user.getId());
         return activateUser(user);
     }
 
@@ -251,6 +260,7 @@ public class UserServiceImpl implements UserService {
         log.info("Change user role with id : {} to {}", id, role);
         User user = getById(id);
         user.setRole(Role.valueOf(role.toUpperCase()));
+        logService.save("Change user role to:" + role, user.getId());
         return userToUserResponseForAdmin(userRepository.save(user));
     }
 
@@ -292,6 +302,7 @@ public class UserServiceImpl implements UserService {
             currentUser.setNextPaymentTime(null);
         }
         userRepository.save(currentUser);
+        logService.save("Change subscription to:" + subscription.getName(), currentUser.getId());
         return invoiceResponse;
     }
 
@@ -325,6 +336,7 @@ public class UserServiceImpl implements UserService {
             currentUser.setRecoveryPhoneNumber(request.recoveryPhoneNumber());
         }
         User user = userRepository.save(currentUser);
+        logService.save("Update security", user.getId());
         return new ProfileSecurityResponse(
                 user.getRecoveryEmail(),
                 user.getRecoveryPhoneNumber());

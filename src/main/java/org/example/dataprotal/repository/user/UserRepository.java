@@ -14,4 +14,12 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query(value = "select * from users where similarity(CONCAT(firstName, ' ', lastName), :name) > 0.3", nativeQuery = true)
     List<User> searchUserByName(String name);
+
+    @Query("SELECT COUNT(u) FROM User u WHERE u.isActive = true")
+    Long countActiveUsers();
+
+    @Query("""
+            SELECT COUNT(u) FROM User u WHERE MONTH(u.createdAt) = MONTH(CURRENT_DATE) AND YEAR(u.createdAt) = YEAR(CURRENT_DATE) 
+            """)
+    Long thisMonthUsers();
 }

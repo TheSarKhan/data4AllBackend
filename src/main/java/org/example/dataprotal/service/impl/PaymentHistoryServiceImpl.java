@@ -22,14 +22,17 @@ import java.util.List;
 @Slf4j
 public class PaymentHistoryServiceImpl implements PaymentHistoryService {
     private final PaymentHistoryRepository paymentHistoryRepository;
+    private final LogService logService;
 
     @Override
     public PaymentHistory save(PaymentHistory paymentHistory) {
+        log.info("Save payment history : {}", paymentHistory);
         return paymentHistoryRepository.save(paymentHistory);
     }
 
     @Override
     public PaymentHistoryResponse getPaymentHistoryByUser(User user) {
+        log.info("Get payment history by user : {}", user);
         return new PaymentHistoryResponse(paymentHistoryRepository.findPaymentHistoryByUserId(user.getId()),
                 user.getNextPaymentTime());
     }

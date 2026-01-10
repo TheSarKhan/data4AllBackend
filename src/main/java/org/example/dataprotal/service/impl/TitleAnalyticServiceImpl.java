@@ -1,0 +1,79 @@
+package org.example.dataprotal.service.impl;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
+import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
+import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
+import org.example.dataprotal.exception.ResourceCanNotFoundException;
+import org.example.dataprotal.mapper.analytic.AnalyticMapper;
+import org.example.dataprotal.model.analytics.Analytic;
+import org.example.dataprotal.repository.analytics.AnalyticRepository;
+import org.example.dataprotal.service.FileService;
+import org.example.dataprotal.service.TitleAnalyticService;
+import org.springframework.stereotype.Service;
+
+import java.io.IOException;
+import java.util.List;
+
+@Service
+@Slf4j
+@RequiredArgsConstructor
+public class TitleAnalyticServiceImpl implements TitleAnalyticService {
+    private final AnalyticRepository analyticRepository;
+    private final FileService fileService;
+
+    @Override
+    public List<AnalyticResponse> getAll() {
+        log.info("Get all analytics");
+        return analyticRepository.findAll().stream().map(AnalyticMapper::toResponse).toList();
+    }
+
+    @Override
+    public AnalyticResponse getById(Long id) {
+        log.info("Get analytic by id : {}", id);
+        return AnalyticMapper.toResponse(analyticRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found")));
+    }
+
+    @Override
+    public AnalyticResponse save(AnalyticRequest analyticRequest) throws IOException {
+        Analytic analytic = AnalyticMapper.toEntity(analyticRequest);
+        String coverImageUrl = fileService.uploadFile(analyticRequest.coverImage());
+        analytic.setCoverImage(coverImageUrl);
+        log.info("Save analytic : {}", analytic);
+        return AnalyticMapper.toResponse(analyticRepository.save(analytic));
+    }
+
+    @Override
+    public AnalyticResponse update(Long id, UpdatedAnalyticRequest analyticRequest) throws IOException {
+        log.info("Update analytic by id : {}", id);
+
+        Analytic analytic = analyticRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
+
+        if (analyticRequest.coverImage() != null && !analyticRequest.coverImage().isEmpty()) {
+            String coverImageUrl = fileService.uploadFile(analyticRequest.coverImage());
+            analytic.setCoverImage(coverImageUrl);
+        }
+
+        AnalyticMapper.updateAnalytic(analytic, analyticRequest);
+
+        analyticRepository.save(analytic);
+
+        return AnalyticMapper.toResponse(analytic);
+    }
+
+
+    @Override
+    public List<AnalyticResponse> getBySubTitleId(Long subTitleId) {
+
+        List<Analytic> analytics = analyticRepository.findBySubTitleId(subTitleId);
+        return analytics.stream().map(AnalyticMapper::toResponse).toList();
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        log.info("Delete analytic by id : {}", id);
+        analyticRepository.deleteById(id);
+    }
+}

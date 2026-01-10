@@ -5,6 +5,7 @@ import lombok.*;
 import lombok.experimental.FieldDefaults;
 import org.example.dataprotal.enums.PaymentStatus;
 import org.example.dataprotal.enums.PaymentType;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -14,7 +15,13 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "payment_history")
+@Table(
+        name = "payment_history",
+        indexes = {
+                @Index(name = "idx_payment_created_at", columnList = "createdAt"),
+                @Index(name = "idx_payment_status", columnList = "paymentStatus")
+        }
+)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class PaymentHistory {
     @Id
@@ -36,4 +43,8 @@ public class PaymentHistory {
     Long userId;
 
     String billUrl;
+
+    @CreationTimestamp
+    LocalDateTime createdAt;
+
 }
