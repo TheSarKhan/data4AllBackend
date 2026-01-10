@@ -54,9 +54,13 @@ spring:
       url: jdbc:postgresql://localhost:5454/Chatbot
       username: root
       password: root
+    fifth:
+      url: jdbc:postgresql://localhost:5455/Research
+      username: root
+      password: root
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   data:
     redis:
 #      host: localhost

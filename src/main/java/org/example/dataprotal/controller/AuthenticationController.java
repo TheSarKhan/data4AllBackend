@@ -173,5 +173,4 @@ public class AuthenticationController {
         return ResponseEntity.ok("Email verified successfully. You can now log in.");
     }
 
-
 }

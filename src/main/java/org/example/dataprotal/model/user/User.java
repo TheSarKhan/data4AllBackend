@@ -16,7 +16,13 @@ import java.time.LocalDateTime;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "users")
+@Table(
+        name = "users",
+        indexes = {
+                @Index(name = "idx_users_created_at", columnList = "createdAt"),
+                @Index(name = "idx_users_is_active", columnList = "isActive")
+        }
+)
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class User {
     @Id
@@ -82,9 +88,10 @@ public class User {
 
     @PrePersist
     public void prePersist() {
-        role = Role.USER;
-        subscriptionId = 1L;
-        language = Language.EN;
+        if (role == null) role = Role.USER;
+        if (subscriptionId == null) subscriptionId = 1L;
+        if (language == null) language = Language.EN;
         isActive = true;
     }
+
 }

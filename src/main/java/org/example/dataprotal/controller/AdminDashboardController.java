@@ -1,0 +1,82 @@
+package org.example.dataprotal.controller;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.example.dataprotal.dto.request.DataSetCategoryRequest;
+import org.example.dataprotal.dto.response.DashboardResponse;
+import org.example.dataprotal.dto.response.DataSetCategoryResponse;
+import org.example.dataprotal.dto.response.DataSetResponse;
+import org.example.dataprotal.service.DashboardService;
+import org.example.dataprotal.service.DataSetService;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api/v1/dashboard")
+@SecurityRequirement(name = "bearerAuth")
+@Tag(name = "Admin Dashboard Controller", description = "Provides information for admin dashboard")
+@PreAuthorize("hasRole('ADMIN') ")
+public class AdminDashboardController {
+    private final DashboardService dashboardService;
+    private final DataSetService dataSetService;
+
+    @GetMapping("/dashboard-information")
+    @Operation(summary = "Get dashboard data", description = "Returns dashboard information such as total users, total subscriptions, etc.")
+    public ResponseEntity<DashboardResponse> getDashboard() {
+        return ResponseEntity.ok(dashboardService.getDashboard());
+    }
+
+    @PostMapping(value = "/category/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Create data set category", description = "Creates a new data set category")
+    public ResponseEntity<DataSetCategoryResponse> createCategory(@ModelAttribute DataSetCategoryRequest request) throws Exception {
+        return ResponseEntity.status(HttpStatus.OK).body(dataSetService.createCategory(request));
+    }
+
+    @GetMapping("/categories")
+    @Operation(summary = "Get all categories", description = "Returns all categories")
+    public List<DataSetCategoryResponse> getAllCategories() {
+        return dataSetService.getAllCategories();
+    }
+
+    @GetMapping("/get/all/{category}")
+    @Operation(description = "Get dataSets with category", summary = "offset is the number of elements that already got.Front must send offset for each time." +
+            "At the begining offset will be equal to 0." +
+            "I give 5 element limit for now.You can only get 5 element for every fetch.")
+    public ResponseEntity<Map<String, Object>> getAllDataSetByCategory(@PathVariable String category,
+                                                                       @RequestParam int offset) {
+        return ResponseEntity.ok(dataSetService.getDataSetByCategory(category, offset, 5));
+    }
+
+    @GetMapping("/get/{datasetId}")
+    @Operation(description = "Get dataSet with id")
+    public ResponseEntity<DataSetResponse> getDataSetById(@PathVariable Long datasetId) {
+        return ResponseEntity.ok(dataSetService.getDataSetById(datasetId));
+    }
+
+    @GetMapping("/datasets-by-intern-id/{internId}")
+    @Operation(description = "Get dataSets by intern id")
+    public ResponseEntity<List<DataSetResponse>> getDataSetsByInternId(@PathVariable Long internId) {
+        return ResponseEntity.ok(dataSetService.getDataSetsByInternId(internId));
+    }
+
+
+    @GetMapping("/datasets/read-file/{id}")
+    public ResponseEntity<ByteArrayResource> readDataSetFile(@PathVariable Long id) throws Exception {
+        byte[] data = dataSetService.downloadDataSetFile(id);
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dataset_" + id + ".csv\"")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(new ByteArrayResource(data));
+    }
+}

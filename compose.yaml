@@ -65,6 +65,20 @@ services:
     networks:
       - dataportal_network
 
+  research_service:
+    container_name: research
+    image: postgres:18
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: Research
+    ports:
+      - '5455:5432'
+    volumes:
+      - Research:/var/lib/postgresql
+    networks:
+      - dataportal_network
+
   lingva_translate:
     image: fossandroid/lingva-translate:latest
     container_name: lingva
@@ -79,6 +93,7 @@ volumes:
   PageData: {}
   DataSet: {}
   ChatBot: {}
+  Research: {}
 
 networks:
   dataportal_network:
