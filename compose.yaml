@@ -11,7 +11,7 @@ services:
 
   users_service:
     container_name: users
-    image: postgres:18
+    image: postgres:15
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -25,7 +25,7 @@ services:
 
   pages_service:
     container_name: pages
-    image: postgres:18
+    image: postgres:15
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -39,7 +39,7 @@ services:
 
   dataset_service:
     container_name: dataset
-    image: postgres:18
+    image: postgres:15
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -53,7 +53,7 @@ services:
 
   chatbot_service:
     container_name: chatbot
-    image: postgres:18
+    image: postgres:15
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
@@ -67,7 +67,7 @@ services:
 
   research_service:
     container_name: research
-    image: postgres:18
+    image: postgres:15
     environment:
       POSTGRES_USER: root
       POSTGRES_PASSWORD: root
