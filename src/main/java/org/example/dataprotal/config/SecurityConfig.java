@@ -6,6 +6,7 @@ import org.example.dataprotal.service.impl.CustomOAuth2UserServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -82,38 +83,87 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, AccessDeniedHandler accessDeniedHandler, AuthenticationEntryPoint authenticationEntryPoint, CustomOAuth2UserServiceImpl customOAuth2UserServiceImpl) throws Exception {
+    public SecurityFilterChain filterChain(
+            HttpSecurity http,
+            AccessDeniedHandler accessDeniedHandler,
+            AuthenticationEntryPoint authenticationEntryPoint,
+            CustomOAuth2UserServiceImpl customOAuth2UserServiceImpl
+    ) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
-                .exceptionHandling(exception ->
-                        exception.accessDeniedHandler(accessDeniedHandler)
-                                .authenticationEntryPoint(authenticationEntryPoint)
+
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler(accessDeniedHandler)
+                        .authenticationEntryPoint(authenticationEntryPoint)
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                                "/api/v1/auth/google-login", "/login", "/api/v1/content/**","/api/v1/dataset/**", "/api/v1/card/**","/api/v1/page/**",
-                                "/api/v1/auth/email/consultation", "/api/v1/auth/email/appeal",
-                                "/api/v1/auth/**", "/api/v1/auth/refresh","/test","/api/v1/chatbot/**",
-                                "api/v1/support","api/v1/support/**","/api/v1/notification/activate/**","/api/v1/files/**"
+
+                        .requestMatchers(
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+
+                                "/login",
+                                "/api/v1/auth/**",
+                                "/api/v1/auth/refresh",
+
+                                "/api/v1/auth/email/consultation",
+                                "/api/v1/auth/email/appeal",
+
+                                "/api/v1/chatbot/**",
+                                "/api/v1/files/**",
+                                "/api/v1/notification/activate/**",
+
+                                "/api/v1/support",
+                                "/api/v1/support/**",
+
+                                "/test"
                         ).permitAll()
-//                        .requestMatchers("/api/v1/dataset/**").hasAnyRole("PREMIUM","ADMIN")
+
+                        .requestMatchers(HttpMethod.GET,
+                                "/api/v1/content/**",
+                                "/api/v1/page/**",
+                                "/api/v1/card/**",
+                                "/api/v1/faq/**",
+
+                                "/api/v1/analytic/**",
+                                "/api/v1/analytic-title/**",
+                                "/api/v1/analytic-sub-title/**",
+
+                                "/api/v1/research-card/**",
+                                "/api/v1/research-title/**",
+                                "/api/v1/research-sub-title/**"
+                        ).permitAll()
+
+                        .requestMatchers("/api/v1/dataset/**")
+                        .hasAnyRole("PREMIUM", "ADMIN")
+
                         .anyRequest().authenticated()
                 )
+
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/login")
-                        .userInfoEndpoint(userInfo -> userInfo.userService(customOAuth2UserServiceImpl))
-                        .successHandler((request, response, authentication) -> {
-                            response.sendRedirect("/home");
-                        })
-                        .failureHandler((request, response, exception) -> {
-                            response.sendRedirect("/login?error=true");
-                        })
+                        .userInfoEndpoint(userInfo ->
+                                userInfo.userService(customOAuth2UserServiceImpl)
+                        )
+                        .successHandler((request, response, authentication) ->
+                                response.sendRedirect("/home")
+                        )
+                        .failureHandler((request, response, exception) ->
+                                response.sendRedirect("/login?error=true")
+                        )
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .authenticationProvider(authenticationProvider);
 
         return http.build();
     }
+
 }
