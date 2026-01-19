@@ -15,7 +15,6 @@ public class SubTitleMapper {
         return new SubTitleResponse(
                 subTitle.getId(),
                 subTitle.getName(),
-                subTitle.getTitle(),
                 toAnalyticResponse(subTitle.getAnalytics())
         );
     }

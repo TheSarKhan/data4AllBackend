@@ -23,7 +23,7 @@ public class ResearchTitle {
     @Column(nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "title", fetch = FetchType.EAGER)
     @Builder.Default
     @JsonManagedReference
     private List<ResearchSubTitle> subTitles = new ArrayList<>();

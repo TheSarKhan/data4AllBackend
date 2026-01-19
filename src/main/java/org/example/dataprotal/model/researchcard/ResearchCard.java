@@ -26,6 +26,12 @@ public class ResearchCard {
 
     private String fileUrl;
 
+    @Builder.Default
+    private Long viewCount = 0L;
+
+    @Builder.Default
+    private Long likeCount = 0L;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sub_title_id")
     @JsonBackReference

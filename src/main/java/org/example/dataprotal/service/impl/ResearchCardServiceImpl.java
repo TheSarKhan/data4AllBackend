@@ -1,5 +1,6 @@
 package org.example.dataprotal.service.impl;
 
+import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.researchcard.ResearchCardRequest;
@@ -7,13 +8,20 @@ import org.example.dataprotal.dto.response.researchcard.ResearchCardResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.researchcard.ResearchCardMapper;
 import org.example.dataprotal.model.researchcard.ResearchCard;
+import org.example.dataprotal.model.researchcard.ResearchCardLike;
+import org.example.dataprotal.model.user.User;
+import org.example.dataprotal.repository.researchcard.ResearchCardLikeRepository;
 import org.example.dataprotal.repository.researchcard.ResearchCardRepository;
 import org.example.dataprotal.service.FileService;
 import org.example.dataprotal.service.ResearchCardService;
+import org.example.dataprotal.service.UserService;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
@@ -21,6 +29,8 @@ import java.util.List;
 public class ResearchCardServiceImpl implements ResearchCardService {
     private final ResearchCardRepository researchCardRepository;
     private final FileService fileService;
+    private final ResearchCardLikeRepository researchCardLikeRepository;
+    private final UserService userService;
 
     @Override
     public List<ResearchCardResponse> getAll() {
@@ -36,23 +46,38 @@ public class ResearchCardServiceImpl implements ResearchCardService {
 
     @Override
     public ResearchCardResponse save(ResearchCardRequest researchCardRequest) throws IOException {
+
         ResearchCard researchCard = ResearchCardMapper.toEntity(researchCardRequest);
-        String fileUrl = fileService.uploadFile(researchCardRequest.multipartFile());
-        researchCard.setFileUrl(fileUrl);
+
+        if (researchCardRequest.multipartFile() != null
+                && !researchCardRequest.multipartFile().isEmpty()) {
+
+            String fileUrl = fileService.uploadFile(researchCardRequest.multipartFile());
+            researchCard.setFileUrl(fileUrl);
+        }
+
         log.info("Save research card : {}", researchCard);
         return ResearchCardMapper.toResponse(researchCardRepository.save(researchCard));
     }
 
     @Override
     public ResearchCardResponse update(Long id, ResearchCardRequest researchCardRequest) throws IOException {
+
         log.info("Update research card by id : {}", id);
+
         ResearchCard researchCard = researchCardRepository.findById(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Research card not found"));
 
-        if (researchCardRequest.multipartFile() != null && !researchCardRequest.multipartFile().isEmpty()) {
+        if (researchCardRequest.multipartFile() != null
+                && !researchCardRequest.multipartFile().isEmpty()) {
+
+            if (researchCard.getFileUrl() != null) {
+                fileService.deleteFile(researchCard.getFileUrl());
+            }
             String fileUrl = fileService.uploadFile(researchCardRequest.multipartFile());
             researchCard.setFileUrl(fileUrl);
         }
+
         ResearchCardMapper.updateResearchCard(researchCard, researchCardRequest);
 
         researchCardRepository.save(researchCard);
@@ -62,7 +87,6 @@ public class ResearchCardServiceImpl implements ResearchCardService {
 
     @Override
     public List<ResearchCardResponse> getBySubTitleId(Long subTitleId) {
-
         List<ResearchCard> researchCards = researchCardRepository.findBySubTitleId(subTitleId);
         return researchCards.stream().map(ResearchCardMapper::toResponse).toList();
     }
@@ -71,5 +95,40 @@ public class ResearchCardServiceImpl implements ResearchCardService {
     public void deleteById(Long id) {
         log.info("Delete research card by id : {}", id);
         researchCardRepository.deleteById(id);
+    }
+
+    @Override
+    public void incrementView(Long id) {
+        ResearchCard card = researchCardRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Research card not found"));
+        card.setViewCount(card.getViewCount() + 1);
+        researchCardRepository.save(card);
+    }
+
+    @Override
+    public void toggleLike(Long cardId) throws AuthException {
+        User currentUser = userService.getCurrentUser();
+        ResearchCard researchCard = researchCardRepository.findById(cardId).orElseThrow(() ->
+                new ResourceCanNotFoundException("Research card not found"));
+        Optional<ResearchCardLike> researchCardLike = researchCardLikeRepository.findByResearchCardIdAndUserId(cardId, currentUser.getId());
+        if (researchCardLike.isPresent()) {
+            researchCardLikeRepository.delete(researchCardLike.get());
+        } else {
+            ResearchCardLike like = ResearchCardLike.builder()
+                    .userId(currentUser.getId())
+                    .researchCard(researchCard)
+                    .build();
+            researchCardLikeRepository.save(like);
+        }
+        long likeCount = researchCardLikeRepository.countByResearchCardId(cardId);
+        researchCard.setLikeCount(likeCount);
+        researchCardRepository.save(researchCard);
+    }
+
+    public Resource getFile(String storedName) throws MalformedURLException {
+        Resource file = fileService.getFile(storedName);
+        if (!file.exists() || !file.isReadable()) {
+            throw new ResourceCanNotFoundException("File not found");
+        }
+        return file;
     }
 }

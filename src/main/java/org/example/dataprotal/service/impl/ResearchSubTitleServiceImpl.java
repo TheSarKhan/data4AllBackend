@@ -12,6 +12,7 @@ import org.example.dataprotal.repository.researchcard.ResearchSubTitleRepository
 import org.example.dataprotal.repository.researchcard.ResearchTitleRepository;
 import org.example.dataprotal.service.ResearchSubTitleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -37,6 +38,9 @@ public class ResearchSubTitleServiceImpl implements ResearchSubTitleService {
     @Override
     public ResearchSubTitleResponse save(ResearchSubTitleRequest subTitleRequest) {
         ResearchSubTitle researchSubTitle = ResearchSubTitleMapper.toEntity(subTitleRequest);
+        ResearchTitle researchTitle = researchTitleRepository.findById(subTitleRequest.titleId()).orElseThrow(()
+                -> new ResourceCanNotFoundException("Title not found"));
+        researchSubTitle.setTitle(researchTitle);
         log.info("Save subtitle : {}", researchSubTitle);
         return ResearchSubTitleMapper.toResponse(researchSubTitleRepository.save(researchSubTitle));
     }
@@ -58,8 +62,13 @@ public class ResearchSubTitleServiceImpl implements ResearchSubTitleService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
         log.info("Delete subtitle by id : {}", id);
+        ResearchSubTitle subTitle = researchSubTitleRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+
+        subTitle.getResearchCards().clear();
         researchSubTitleRepository.deleteById(id);
     }
 }

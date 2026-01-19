@@ -16,7 +16,9 @@ public class ResearchCardMapper {
                 researchCard.getContent(),
                 researchCard.getFileUrl(),
                 researchCard.getSubTitle().getId(),
-                researchCard.getCreatedAt()
+                researchCard.getCreatedAt(),
+                researchCard.getViewCount(),
+                researchCard.getLikeCount()
         );
     }
 

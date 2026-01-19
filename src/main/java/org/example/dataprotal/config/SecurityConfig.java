@@ -140,7 +140,7 @@ public class SecurityConfig {
                                 "/api/v1/research-title/**",
                                 "/api/v1/research-sub-title/**"
                         ).permitAll()
-
+                        .requestMatchers("api/v1/research-card/download/**").authenticated()
                         .requestMatchers("/api/v1/dataset/**")
                         .hasAnyRole("PREMIUM", "ADMIN")
 

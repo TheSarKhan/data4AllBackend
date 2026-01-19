@@ -4,5 +4,6 @@ import java.time.Instant;
 
 public record ResearchCardResponse(Long id, String topic, String content,
 
-                                   String fileUrl, Long subTitleId, Instant createdAt) {
+                                   String fileUrl, Long subTitleId, Instant createdAt, Long viewCount,
+                                   Long likeCount) {
 }
