@@ -13,17 +13,21 @@ import org.example.dataprotal.model.dataset.DataSet;
 import org.example.dataprotal.model.dataset.DataSetCategory;
 import org.example.dataprotal.model.dataset.DataSetQuery;
 import org.example.dataprotal.model.dataset.Intern;
+import org.example.dataprotal.model.enums.DataSetStatus;
 import org.example.dataprotal.repository.dataset.DataSetCategoryRepository;
 import org.example.dataprotal.repository.dataset.DataSetQueryRepository;
 import org.example.dataprotal.repository.dataset.DataSetRepository;
 import org.example.dataprotal.repository.dataset.InternRepository;
+import org.example.dataprotal.repository.dataset.specification.DataSetSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -94,6 +98,10 @@ public class DataSetService {
     }
 
     public DataSet getDataSetByName(String dataSetName) {
+        return repository.findByDataSetNameAndStatus(dataSetName, DataSetStatus.APPROVED);
+    }
+
+    public DataSet getDataSetByNameForAdmin(String dataSetName) {
         return repository.findByDataSetName(dataSetName);
     }
 
@@ -139,4 +147,40 @@ public class DataSetService {
         return repository.findByIntern_id(internId).stream()
                 .map(dataSetMapper::toResponseDto).toList();
     }
+
+    public void changeStatus(Long id, DataSetStatus status) {
+        DataSet dataSet = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dataset not found"));
+
+        dataSet.setStatus(status);
+        repository.save(dataSet);
+    }
+
+    public Page<DataSetResponse> filter(String name,
+                                        Long categoryId,
+                                        DataSetStatus status,
+                                        LocalDateTime from,
+                                        LocalDateTime to,
+                                        Pageable pageable) {
+
+        Specification<DataSet> spec = Specification
+                .where(DataSetSpecification.hasName(name))
+                .and(DataSetSpecification.hasCategory(categoryId))
+                .and(DataSetSpecification.hasStatus(status))
+                .and(DataSetSpecification.createdAfter(from))
+                .and(DataSetSpecification.createdBefore(to));
+
+        return repository.findAll(spec, pageable)
+                .map(dataSetMapper::toResponseDto);
+    }
+
+    public void softDelete(Long id) {
+        DataSet dataSet = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dataset not found"));
+
+        dataSet.setStatus(DataSetStatus.DELETED);
+        repository.save(dataSet);
+    }
+
+
 }

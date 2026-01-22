@@ -1,6 +1,7 @@
 package org.example.dataprotal.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.DataSetQueryDto;
@@ -21,6 +22,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/dataset")
 @RequiredArgsConstructor
+@SecurityRequirement(name = "bearerAuth")
 public class DataSetController {
     private final DataSetService service;
 

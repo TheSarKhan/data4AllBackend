@@ -8,9 +8,13 @@ import org.example.dataprotal.dto.request.DataSetCategoryRequest;
 import org.example.dataprotal.dto.response.DashboardResponse;
 import org.example.dataprotal.dto.response.DataSetCategoryResponse;
 import org.example.dataprotal.dto.response.DataSetResponse;
+import org.example.dataprotal.model.dataset.DataSet;
+import org.example.dataprotal.model.enums.DataSetStatus;
 import org.example.dataprotal.service.DashboardService;
 import org.example.dataprotal.service.DataSetService;
 import org.springframework.core.io.ByteArrayResource;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -18,6 +22,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +40,11 @@ public class AdminDashboardController {
     @Operation(summary = "Get dashboard data", description = "Returns dashboard information such as total users, total subscriptions, etc.")
     public ResponseEntity<DashboardResponse> getDashboard() {
         return ResponseEntity.ok(dashboardService.getDashboard());
+    }
+    @GetMapping("/get/{dataSetName}")
+    @Operation(description = "Get dataSet with name for admin")
+    public ResponseEntity<DataSet> getDataSet(@PathVariable String dataSetName) {
+        return ResponseEntity.ok(dataSetService.getDataSetByNameForAdmin(dataSetName));
     }
 
     @PostMapping(value = "/category/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -72,11 +82,40 @@ public class AdminDashboardController {
 
 
     @GetMapping("/datasets/read-file/{id}")
+    @Operation(summary = "Read data set file", description = "Reads data set file")
     public ResponseEntity<ByteArrayResource> readDataSetFile(@PathVariable Long id) throws Exception {
         byte[] data = dataSetService.downloadDataSetFile(id);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"dataset_" + id + ".csv\"")
                 .contentType(MediaType.APPLICATION_OCTET_STREAM)
                 .body(new ByteArrayResource(data));
+    }
+
+    @PatchMapping("/datasets/{id}/status")
+    @Operation(summary = "Change data set status", description = "Changes data set status")
+    public ResponseEntity<Void> changeStatus(@PathVariable Long id,
+                                             @RequestBody DataSetStatus status) {
+        dataSetService.changeStatus(id, status);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/filter")
+    public ResponseEntity<Page<DataSetResponse>> filter(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) DataSetStatus status,
+            @RequestParam(required = false) LocalDateTime fromDate,
+            @RequestParam(required = false) LocalDateTime toDate,
+            Pageable pageable
+    ) {
+        return ResponseEntity.ok(
+                dataSetService.filter(name, categoryId, status, fromDate, toDate, pageable)
+        );
+    }
+    @DeleteMapping("/datasets/{id}")
+    @Operation(summary = "Delete data set", description = "Deletes data set")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        dataSetService.softDelete(id);
+        return ResponseEntity.noContent().build();
     }
 }
