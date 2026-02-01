@@ -8,10 +8,12 @@ import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.AnalyticMapper;
 import org.example.dataprotal.model.analytics.Analytic;
+import org.example.dataprotal.model.analytics.SubTitle;
 import org.example.dataprotal.repository.analytics.AnalyticRepository;
 import org.example.dataprotal.service.FileService;
 import org.example.dataprotal.service.TitleAnalyticService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.util.List;
@@ -71,9 +73,19 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
         return analytics.stream().map(AnalyticMapper::toResponse).toList();
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
+        Analytic analytic = analyticRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
+
+        SubTitle subTitle = analytic.getSubTitle();
+
+        subTitle.getAnalytics().remove(analytic);
+        analytic.setSubTitle(null);
+
         log.info("Delete analytic by id : {}", id);
-        analyticRepository.deleteById(id);
+        analyticRepository.delete(analytic);
     }
+
 }

@@ -32,7 +32,7 @@ public class ResearchCard {
     @Builder.Default
     private Long likeCount = 0L;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "sub_title_id")
     @JsonBackReference
     private ResearchSubTitle subTitle;

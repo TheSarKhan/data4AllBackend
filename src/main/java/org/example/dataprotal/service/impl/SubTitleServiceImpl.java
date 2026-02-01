@@ -6,13 +6,16 @@ import org.example.dataprotal.dto.request.analytic.SubTitleRequest;
 import org.example.dataprotal.dto.response.analytic.SubTitleResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.SubTitleMapper;
+import org.example.dataprotal.model.analytics.Analytic;
 import org.example.dataprotal.model.analytics.SubTitle;
 import org.example.dataprotal.model.analytics.Title;
 import org.example.dataprotal.repository.analytics.SubTitleRepository;
 import org.example.dataprotal.repository.analytics.TitleRepository;
 import org.example.dataprotal.service.SubTitleService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -57,9 +60,29 @@ public class SubTitleServiceImpl implements SubTitleService {
         return subTitles.stream().map(SubTitleMapper::toResponse).toList();
     }
 
+    @Transactional
     @Override
     public void deleteById(Long id) {
+        SubTitle subTitle = subTitleRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+
+        if (subTitle.getTitle() != null) {
+            subTitle.getTitle().getSubTitles().remove(subTitle);
+        }
+        if (subTitle.getAnalytics() != null && !subTitle.getAnalytics().isEmpty()) {
+            List<Analytic> analyticsToRemove = new ArrayList<>(subTitle.getAnalytics());
+            for (Analytic analytic : analyticsToRemove) {
+                analytic.setSubTitle(null);
+                if (analytic.getEmbedLinks() != null) {
+                    analytic.getEmbedLinks().clear();
+                }
+            }
+            subTitle.getAnalytics().clear();
+        }
+
         log.info("Delete subtitle by id : {}", id);
-        subTitleRepository.deleteById(id);
+        subTitleRepository.delete(subTitle);
+        subTitleRepository.flush();
     }
+
 }

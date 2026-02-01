@@ -68,7 +68,10 @@ public class ResearchSubTitleServiceImpl implements ResearchSubTitleService {
         ResearchSubTitle subTitle = researchSubTitleRepository.findById(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
 
+        subTitle.getTitle().getSubTitles().remove(subTitle);
+        subTitle.setTitle(null);
+
         subTitle.getResearchCards().clear();
-        researchSubTitleRepository.deleteById(id);
+        researchSubTitleRepository.delete(subTitle);
     }
 }

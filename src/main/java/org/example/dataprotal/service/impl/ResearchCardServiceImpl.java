@@ -17,6 +17,7 @@ import org.example.dataprotal.service.ResearchCardService;
 import org.example.dataprotal.service.UserService;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -92,9 +93,14 @@ public class ResearchCardServiceImpl implements ResearchCardService {
     }
 
     @Override
+    @Transactional
     public void deleteById(Long id) {
+        ResearchCard researchCard = researchCardRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Research card not found"));
+        researchCard.getSubTitle().getResearchCards().remove(researchCard);
+        researchCard.setSubTitle(null);
+
         log.info("Delete research card by id : {}", id);
-        researchCardRepository.deleteById(id);
+        researchCardRepository.delete(researchCard);
     }
 
     @Override
