@@ -7,5 +7,5 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public record AnalyticRequest(@NotBlank String name, @NotNull MultipartFile coverImage,
-                              @NotNull Long subTitleId, List<EmbedLinkRequest> embedLinks) {
+                              @NotNull Long subTitleId, boolean isOpened, List<EmbedLinkRequest> embedLinks) {
 }

@@ -2,12 +2,18 @@ package org.example.dataprotal.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.AnalyticMapper;
 import org.example.dataprotal.model.analytics.Analytic;
+import org.example.dataprotal.model.analytics.EmbedLink;
 import org.example.dataprotal.model.analytics.SubTitle;
 import org.example.dataprotal.repository.analytics.AnalyticRepository;
 import org.example.dataprotal.service.FileService;
@@ -15,8 +21,11 @@ import org.example.dataprotal.service.TitleAnalyticService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -88,4 +97,44 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
         analyticRepository.delete(analytic);
     }
 
+    @Override
+    public ByteArrayInputStream exportToExcel() throws IOException {
+        List<Analytic> analytics = analyticRepository.findAll();
+
+        try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+
+            Sheet sheet = workbook.createSheet("Analytics");
+
+            Row headerRow = sheet.createRow(0);
+            String[] headers = {"ID", "Name", "Cover Image", "SubTitle", "Embed Links"};
+            for (int i = 0; i < headers.length; i++) {
+                Cell cell = headerRow.createCell(i);
+                cell.setCellValue(headers[i]);
+            }
+
+            int rowIdx = 1;
+            for (Analytic analytic : analytics) {
+                Row row = sheet.createRow(rowIdx++);
+
+                row.createCell(0).setCellValue(analytic.getId());
+                row.createCell(1).setCellValue(analytic.getName());
+                row.createCell(2).setCellValue(analytic.getCoverImage());
+                row.createCell(3).setCellValue(
+                        analytic.getSubTitle() != null ? analytic.getSubTitle().getName() : ""
+                );
+
+                String links = analytic.getEmbedLinks().stream()
+                        .map(EmbedLink::getEmbedLink)
+                        .collect(Collectors.joining(", "));
+                row.createCell(4).setCellValue(links);
+            }
+
+            for (int i = 0; i < headers.length; i++) {
+                sheet.autoSizeColumn(i);
+            }
+
+            workbook.write(out);
+            return new ByteArrayInputStream(out.toByteArray());
+        }
+    }
 }

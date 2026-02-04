@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.response.DashboardResponse;
 import org.example.dataprotal.dto.response.LogResponse;
+import org.example.dataprotal.exception.ResourceCanNotFoundException;
+import org.example.dataprotal.model.user.User;
 import org.example.dataprotal.repository.user.LogRepository;
 import org.example.dataprotal.repository.user.PaymentHistoryRepository;
 import org.example.dataprotal.repository.user.UserRepository;
@@ -36,11 +38,15 @@ public class DashboardServiceImpl implements DashboardService {
     private List<LogResponse> logToResponseDto() {
         return logRepository.findTop10ByOrderByCreatedAtDesc()
                 .stream()
-                .map(log -> new LogResponse(
-                        log.getLog(),
-                        log.getUserId(),
-                        log.getCreatedAt()
-                ))
+                .map(log -> {
+                    User user = userRepository.findById(log.getUserId()).orElseThrow(() ->
+                            new ResourceCanNotFoundException("User not found by id : " + log.getUserId()));
+                    return new LogResponse(
+                            log.getLog(),
+                            user.getId(),
+                            user.getFirstName() + " " + user.getLastName(),
+                            log.getCreatedAt());
+                })
                 .toList();
     }
 

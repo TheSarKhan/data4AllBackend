@@ -4,6 +4,7 @@ import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -20,4 +21,6 @@ public interface TitleAnalyticService {
     List<AnalyticResponse> getBySubTitleId(Long subTitleId);
 
     void deleteById(Long id);
+
+    ByteArrayInputStream exportToExcel() throws IOException;
 }

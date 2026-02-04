@@ -15,7 +15,8 @@ public class InternMapper {
                 intern.getName(),
                 intern.getEmail(),
                 intern.getPhone(),
-                mapToDataSetResponse(intern.getDatasets())
+                mapToDataSetResponse(intern.getDatasets()),
+                intern.getPosition()
         );
     }
 
@@ -24,6 +25,7 @@ public class InternMapper {
                 .name(internRequestDto.name())
                 .email(internRequestDto.email())
                 .phone(internRequestDto.phone())
+                .position(internRequestDto.status())
                 .build();
     }
 

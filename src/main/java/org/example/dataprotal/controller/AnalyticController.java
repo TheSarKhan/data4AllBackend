@@ -9,6 +9,7 @@ import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
 import org.example.dataprotal.service.TitleAnalyticService;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.util.List;
 
@@ -65,6 +67,7 @@ public class AnalyticController {
                     request.name(),
                     coverImage,
                     request.subTitleId(),
+                    request.isOpened(),
                     request.embedLinks()
             );
         }
@@ -72,11 +75,23 @@ public class AnalyticController {
         return ResponseEntity.ok(analyticService.update(id, request));
     }
 
-
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete analytic", description = "Deletes an analytic by ID")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         analyticService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/export")
+    public ResponseEntity<byte[]> exportAnalytics() throws IOException {
+        ByteArrayInputStream in = analyticService.exportToExcel();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Content-Disposition", "attachment; filename=analytics.xlsx");
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(in.readAllBytes());
     }
 }

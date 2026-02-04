@@ -32,6 +32,8 @@ public class Analytic {
     @JsonBackReference
     private SubTitle subTitle;
 
+    private boolean isOpened;
+
     @OneToMany(
             mappedBy = "analytic",
             cascade = CascadeType.ALL,

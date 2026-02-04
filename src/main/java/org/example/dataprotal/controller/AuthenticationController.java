@@ -19,6 +19,7 @@ import org.example.dataprotal.service.AuthenticationService;
 import org.example.dataprotal.service.impl.CustomOAuth2UserServiceImpl;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -47,7 +48,7 @@ public class AuthenticationController {
     private final RedisService redisService;
     private final CustomOAuth2UserServiceImpl customOAuth2UserServiceImpl;
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Qeydiyyat üçün endpoint")
 
     public ResponseEntity<?> register(@RequestPart RegisterRequest registerRequest, @RequestPart MultipartFile profileImage) throws IOException, MessagingException {

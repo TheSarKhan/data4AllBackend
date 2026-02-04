@@ -53,14 +53,14 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setCreatedAt(now);
         user.setUpdatedAt(now);
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setVerified(false); // Başlangıçta aktif değil
+        user.setVerified(false);
         userRepository.save(user);
 
         String verificationToken = UUID.randomUUID().toString();
         System.out.println("TOKEN " + verificationToken);
         redisService.saveVerificationTokenToRedis(request.getEmail(), verificationToken, 10);
         String verificationUrl = baseUrl + "/api/v1/auth/verify?token=" + verificationToken;
-        emailService.sendVerificationEmail(request.getEmail(), verificationUrl); // Mail gönderme
+        emailService.sendVerificationEmail(request.getEmail(), verificationUrl);
         return "Check your email to verify account";
     }
 

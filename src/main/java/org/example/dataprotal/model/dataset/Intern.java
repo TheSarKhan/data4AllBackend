@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.example.dataprotal.model.enums.PositionStatus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +25,8 @@ public class Intern {
     private String name;
     private String email;
     private String phone;
+
+    private PositionStatus position;
 
     @OneToMany(mappedBy = "intern", cascade = CascadeType.ALL,fetch = FetchType.EAGER)
     @Builder.Default

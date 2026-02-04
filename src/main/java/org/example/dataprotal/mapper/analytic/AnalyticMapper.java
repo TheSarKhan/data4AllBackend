@@ -25,6 +25,7 @@ public class AnalyticMapper {
                 analytic.getCoverImage(),
                 analytic.getSubTitle().getId(),
                 analytic.getSubTitle().getName(),
+                analytic.isOpened(),
                 toEmbedLinkResponse(analytic.getEmbedLinks())
         );
     }
@@ -43,6 +44,7 @@ public class AnalyticMapper {
                 .subTitle(SubTitle.builder()
                         .id(request.subTitleId())
                         .build())
+                .isOpened(request.isOpened())
                 .build();
 
         List<EmbedLink> embedLinks = request.embedLinks().stream()
@@ -67,6 +69,7 @@ public class AnalyticMapper {
                         .id(request.subTitleId())
                         .build()
         );
+        analytic.setOpened(request.isOpened());
 
         Map<Long, EmbedLink> existingLinks = analytic.getEmbedLinks()
                 .stream()
