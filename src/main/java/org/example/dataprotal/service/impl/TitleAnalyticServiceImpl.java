@@ -16,14 +16,17 @@ import org.example.dataprotal.model.analytics.Analytic;
 import org.example.dataprotal.model.analytics.EmbedLink;
 import org.example.dataprotal.model.analytics.SubTitle;
 import org.example.dataprotal.repository.analytics.AnalyticRepository;
+import org.example.dataprotal.repository.analytics.SubTitleRepository;
 import org.example.dataprotal.service.FileService;
 import org.example.dataprotal.service.TitleAnalyticService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,6 +36,7 @@ import java.util.stream.Collectors;
 public class TitleAnalyticServiceImpl implements TitleAnalyticService {
     private final AnalyticRepository analyticRepository;
     private final FileService fileService;
+    private final SubTitleRepository subTitleRepository;
 
     @Override
     public List<AnalyticResponse> getAll() {
@@ -47,10 +51,16 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
     }
 
     @Override
-    public AnalyticResponse save(AnalyticRequest analyticRequest) throws IOException {
+    public AnalyticResponse save(AnalyticRequest analyticRequest, MultipartFile image) throws IOException {
         Analytic analytic = AnalyticMapper.toEntity(analyticRequest);
-        String coverImageUrl = fileService.uploadFile(analyticRequest.coverImage());
+        String coverImageUrl = fileService.uploadFile(image);
         analytic.setCoverImage(coverImageUrl);
+
+        SubTitle subTitle = subTitleRepository.findById(analyticRequest.subTitleId())
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+
+        analytic.setSubTitle(subTitle);
+
         log.info("Save analytic : {}", analytic);
         return AnalyticMapper.toResponse(analyticRepository.save(analytic));
     }
@@ -62,12 +72,28 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
         Analytic analytic = analyticRepository.findById(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
 
+        analytic.getEmbedLinks().size();
+        Iterator<EmbedLink> iterator = analytic.getEmbedLinks().iterator();
+        while (iterator.hasNext()) {
+            EmbedLink e = iterator.next();
+            boolean existsInRequest = analyticRequest.embedLinks().stream()
+                    .anyMatch(r -> r.id() != null && r.id().equals(e.getId()));
+            if (!existsInRequest) {
+                iterator.remove();
+            }
+        }
+
         if (analyticRequest.coverImage() != null && !analyticRequest.coverImage().isEmpty()) {
             String coverImageUrl = fileService.uploadFile(analyticRequest.coverImage());
             analytic.setCoverImage(coverImageUrl);
         }
 
         AnalyticMapper.updateAnalytic(analytic, analyticRequest);
+
+        SubTitle subTitle = subTitleRepository.findById(analyticRequest.subTitleId())
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+
+        analytic.setSubTitle(subTitle);
 
         analyticRepository.save(analytic);
 

@@ -3,6 +3,7 @@ package org.example.dataprotal.service;
 import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -14,7 +15,7 @@ public interface TitleAnalyticService {
 
     AnalyticResponse getById(Long id);
 
-    AnalyticResponse save(AnalyticRequest analyticRequest) throws IOException;
+    AnalyticResponse save(AnalyticRequest analyticRequest, MultipartFile image) throws IOException;
 
     AnalyticResponse update(Long id, UpdatedAnalyticRequest analyticRequest) throws IOException;
 

@@ -8,8 +8,8 @@ import org.example.dataprotal.dto.response.EmbedLinkResponse;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
 import org.example.dataprotal.model.analytics.Analytic;
 import org.example.dataprotal.model.analytics.EmbedLink;
-import org.example.dataprotal.model.analytics.SubTitle;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -41,18 +41,18 @@ public class AnalyticMapper {
 
         Analytic analytic = Analytic.builder()
                 .name(request.name())
-                .subTitle(SubTitle.builder()
-                        .id(request.subTitleId())
-                        .build())
                 .isOpened(request.isOpened())
                 .build();
 
         List<EmbedLink> embedLinks = request.embedLinks().stream()
-                .map(linkReq -> EmbedLink.builder()
-                        .embedLink(linkReq.embedLink())
-                        .analytic(analytic)
-                        .build()
-                )
+                .map(linkReq -> {
+                    String decoded = safeDecode(linkReq.embedLink());
+
+                    return EmbedLink.builder()
+                            .embedLink(decoded)
+                            .analytic(analytic)
+                            .build();
+                })
                 .toList();
 
         analytic.setEmbedLinks(embedLinks);
@@ -64,34 +64,33 @@ public class AnalyticMapper {
             UpdatedAnalyticRequest request
     ) {
         analytic.setName(request.name());
-        analytic.setSubTitle(
-                SubTitle.builder()
-                        .id(request.subTitleId())
-                        .build()
-        );
         analytic.setOpened(request.isOpened());
 
-        Map<Long, EmbedLink> existingLinks = analytic.getEmbedLinks()
-                .stream()
-                .filter(link -> link.getId() != null)
-                .collect(Collectors.toMap(
-                        EmbedLink::getId,
-                        Function.identity()
-                ));
+        Map<Long, EmbedLink> existingLinks = analytic.getEmbedLinks().stream()
+                .filter(l -> l.getId() != null)
+                .collect(Collectors.toMap(EmbedLink::getId, Function.identity()));
 
         for (UpdateEmbedLinkRequest req : request.embedLinks()) {
+            String decoded = safeDecode(req.embedLink());
 
             if (req.id() != null && existingLinks.containsKey(req.id())) {
-                EmbedLink existing = existingLinks.get(req.id());
-                existing.setEmbedLink(req.embedLink());
-
-            } else {
+                existingLinks.get(req.id()).setEmbedLink(decoded);
+            } else if (req.id() == null || req.id() == 0) {
                 EmbedLink newLink = EmbedLink.builder()
-                        .embedLink(req.embedLink())
+                        .embedLink(decoded)
                         .analytic(analytic)
                         .build();
                 analytic.getEmbedLinks().add(newLink);
             }
+        }
+
+    }
+
+    private static String safeDecode(String value) {
+        try {
+            return new String(Base64.getDecoder().decode(value));
+        } catch (IllegalArgumentException e) {
+            return value;
         }
     }
 }

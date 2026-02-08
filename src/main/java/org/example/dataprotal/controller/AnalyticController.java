@@ -48,13 +48,15 @@ public class AnalyticController {
         return ResponseEntity.ok(analyticService.getBySubTitleId(subTitleId));
     }
 
-    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @Operation(summary = "Create analytic", description = "Creates a new analytic")
-    public ResponseEntity<AnalyticResponse> create(@ModelAttribute @Valid AnalyticRequest request) throws IOException {
-        return new ResponseEntity<>(analyticService.save(request), HttpStatus.CREATED);
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public AnalyticResponse save(
+            @RequestPart("data") AnalyticRequest request,
+            @RequestPart("coverImage") MultipartFile coverImage
+    ) throws IOException {
+        return analyticService.save(request, coverImage);
     }
 
-    @PostMapping(value = "/{id}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Update analytic", description = "Updates an existing analytic")
     public ResponseEntity<AnalyticResponse> update(
             @PathVariable Long id,
