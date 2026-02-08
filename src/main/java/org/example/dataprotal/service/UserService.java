@@ -4,8 +4,11 @@ import jakarta.mail.MessagingException;
 import jakarta.security.auth.message.AuthException;
 import org.example.dataprotal.dto.request.ChangeSubscriptionRequest;
 import org.example.dataprotal.dto.request.ProfileSecurityRequest;
-import org.example.dataprotal.dto.response.*;
 import org.example.dataprotal.dto.request.ProfileUpdateRequest;
+import org.example.dataprotal.dto.response.ProfileResponse;
+import org.example.dataprotal.dto.response.ProfileSecurityResponse;
+import org.example.dataprotal.dto.response.ProfileSettingsResponse;
+import org.example.dataprotal.dto.response.UserResponseForAdmin;
 import org.example.dataprotal.exception.InvoiceCanNotBeCreatedException;
 import org.example.dataprotal.model.user.User;
 import org.example.dataprotal.payment.dto.PayriffInvoiceRequest;
@@ -35,8 +38,8 @@ public interface UserService {
 
     ProfileSecurityResponse getProfileSecurity() throws AuthException;
 
-    String  updateProfile(ProfileUpdateRequest profileUpdateRequest,
-                                  MultipartFile profileImage) throws AuthException, IOException, MessagingException;
+    String updateProfile(ProfileUpdateRequest profileUpdateRequest,
+                         MultipartFile profileImage) throws AuthException, IOException, MessagingException;
 
     ProfileResponse updateLanguage(String language) throws AuthException;
 

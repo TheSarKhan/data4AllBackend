@@ -23,6 +23,7 @@ public class DataSet {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String author;
 
     String dataSetName;
@@ -35,6 +36,8 @@ public class DataSet {
     String imageUrl;
 
     String fileUrl;
+
+    boolean isOpened;
 
     @CreationTimestamp
     @DateTimeFormat(pattern = "yyyy.MM.dd")

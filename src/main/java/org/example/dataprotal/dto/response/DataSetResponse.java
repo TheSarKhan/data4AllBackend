@@ -15,6 +15,7 @@ public record DataSetResponse(
         DataSetStatus status,
         String categoryName,
         String internName,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        boolean isOpened
 ) {}
 

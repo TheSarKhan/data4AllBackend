@@ -3,8 +3,10 @@ package org.example.dataprotal.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.DataSetCategoryRequest;
+import org.example.dataprotal.dto.request.DataSetRequest;
 import org.example.dataprotal.dto.response.DashboardResponse;
 import org.example.dataprotal.dto.response.DataSetCategoryResponse;
 import org.example.dataprotal.dto.response.DataSetResponse;
@@ -21,6 +23,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,6 +44,7 @@ public class AdminDashboardController {
     public ResponseEntity<DashboardResponse> getDashboard() {
         return ResponseEntity.ok(dashboardService.getDashboard());
     }
+
     @GetMapping("/get/{dataSetName}")
     @Operation(description = "Get dataSet with name for admin")
     public ResponseEntity<DataSet> getDataSet(@PathVariable String dataSetName) {
@@ -99,6 +103,18 @@ public class AdminDashboardController {
         return ResponseEntity.ok().build();
     }
 
+    @PutMapping(path = "/update-dataset/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Update dataset")
+    public ResponseEntity<DataSetResponse> updateDataSet(
+            @PathVariable Long id,
+            @RequestPart("data") @Valid DataSetRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        DataSetResponse response = dataSetService.updateDataSet(id, request, file, image);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/filter")
     public ResponseEntity<Page<DataSetResponse>> filter(
             @RequestParam(required = false) String name,
@@ -112,6 +128,7 @@ public class AdminDashboardController {
                 dataSetService.filter(name, categoryId, status, fromDate, toDate, pageable)
         );
     }
+
     @DeleteMapping("/datasets/{id}")
     @Operation(summary = "Delete data set", description = "Deletes data set")
     public ResponseEntity<Void> delete(@PathVariable Long id) {

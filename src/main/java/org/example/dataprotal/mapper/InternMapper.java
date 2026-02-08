@@ -41,7 +41,8 @@ public class InternMapper {
                 dataSet.getStatus(),
                 dataSet.getCategory().getName(),
                 dataSet.getIntern().getName(),
-                dataSet.getCreatedAt()
+                dataSet.getCreatedAt(),
+                dataSet.isOpened()
         )).toList();
     }
 }

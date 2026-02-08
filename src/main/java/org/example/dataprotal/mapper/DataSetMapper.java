@@ -25,9 +25,10 @@ public interface DataSetMapper {
                 dataSet.getImageUrl(),
                 dataSet.getFileUrl(),
                 dataSet.getStatus(),
-                dataSet.getCategory().getName(),
-                dataSet.getIntern().getName(),
-                dataSet.getCreatedAt()
+                dataSet.getCategory() != null ? dataSet.getCategory().getName() : null,
+                dataSet.getIntern() != null ? dataSet.getIntern().getName() : null,
+                dataSet.getCreatedAt(),
+                dataSet.isOpened()
         );
     }
 }

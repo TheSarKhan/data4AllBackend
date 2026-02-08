@@ -76,24 +76,72 @@ public class DataSetService {
             imageUrl = fileService.uploadFile(img);
         }
 
-        DataSetCategory category = categoryRepository.findById(dto.categoryId())
+        DataSetCategory category = categoryRepository.findById(dto.getCategoryId())
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
-        Intern intern = internRepository.findById(dto.internId())
-                .orElseThrow(() -> new RuntimeException("Intern not found"));
-
         DataSet dataSet = new DataSet();
-        dataSet.setAuthor(dto.author());
-        dataSet.setDataSetName(dto.dataSetName());
-        dataSet.setTitle(dto.title());
-        dataSet.setDescription(dto.description());
+        dataSet.setAuthor(dto.getAuthor());
+        dataSet.setDataSetName(dto.getDataSetName());
+        dataSet.setTitle(dto.getTitle());
+        dataSet.setDescription(dto.getDescription());
         dataSet.setCategory(category);
-        dataSet.setIntern(intern);
+        if (dto.getInternId() != null) {
+            Intern intern = internRepository.findById(dto.getInternId())
+                    .orElseThrow(() -> new RuntimeException("Intern not found"));
+            dataSet.setIntern(intern);
+        } else {
+            dataSet.setIntern(null);
+        }
         dataSet.setFileUrl(fileUrl);
         dataSet.setImageUrl(imageUrl);
+        dataSet.setOpened(dto.isOpened());
+        dataSet.setStatus(DataSetStatus.PENDING);
 
         DataSet saved = repository.save(dataSet);
 
+        return dataSetMapper.toResponseDto(saved);
+    }
+
+    @SneakyThrows
+    public DataSetResponse updateDataSet(
+            Long id,
+            DataSetRequest dto,
+            MultipartFile file,
+            MultipartFile img
+    ) {
+        DataSet existing = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dataset not found"));
+
+        if (file != null && !file.isEmpty()) {
+            String fileUrl = fileService.uploadFile(file);
+            existing.setFileUrl(fileUrl);
+        }
+        if (img != null && !img.isEmpty()) {
+            String imageUrl = fileService.uploadFile(img);
+            existing.setImageUrl(imageUrl);
+        }
+
+        if (dto.getCategoryId() != null) {
+            DataSetCategory category = categoryRepository.findById(dto.getCategoryId())
+                    .orElseThrow(() -> new RuntimeException("Category not found"));
+            existing.setCategory(category);
+        }
+
+        if (dto.getInternId() != null) {
+            Intern intern = internRepository.findById(dto.getInternId())
+                    .orElseThrow(() -> new RuntimeException("Intern not found"));
+            existing.setIntern(intern);
+        } else {
+            existing.setIntern(null);
+        }
+
+        existing.setAuthor(dto.getAuthor());
+        existing.setDataSetName(dto.getDataSetName());
+        existing.setTitle(dto.getTitle());
+        existing.setDescription(dto.getDescription());
+        existing.setOpened(dto.isOpened());
+
+        DataSet saved = repository.save(existing);
         return dataSetMapper.toResponseDto(saved);
     }
 
