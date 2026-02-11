@@ -15,6 +15,7 @@ public class SubTitleMapper {
         return new SubTitleResponse(
                 subTitle.getId(),
                 subTitle.getName(),
+                subTitle.isOpened(),
                 toAnalyticResponse(subTitle.getAnalytics())
         );
     }
@@ -26,6 +27,7 @@ public class SubTitleMapper {
     public static SubTitle toEntity(SubTitleRequest subTitleRequest) {
         return SubTitle.builder()
                 .name(subTitleRequest.name())
+                .isOpened(subTitleRequest.isOpened())
                 .title(Title.builder().id(subTitleRequest.titleId()).build())
                 .build();
     }

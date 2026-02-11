@@ -17,8 +17,15 @@ public class GlobalException {
         return new ResponseEntity<>(canNotFoundThisResource, HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(NotActiveException.class)
+    public ResponseEntity<ErrorResponse> handleNotActiveException(NotActiveException notActiveException) {
+        ErrorResponse notOpened = new ErrorResponse(notActiveException.getMessage(), "This data is not opened");
+        log.error(notActiveException.getMessage());
+        return new ResponseEntity<>(notOpened, HttpStatus.NOT_FOUND);
+    }
+
     @ExceptionHandler(InvoiceCanNotBeCreatedException.class)
-    public ResponseEntity<ErrorResponse> handleGlobalException(InvoiceCanNotBeCreatedException invoiceCanNotBeCreatedException) {
+    public ResponseEntity<ErrorResponse> handleInvoiceCanNotBeCreatedException(InvoiceCanNotBeCreatedException invoiceCanNotBeCreatedException) {
         ErrorResponse canNotFoundThisResource = new ErrorResponse(invoiceCanNotBeCreatedException.getMessage(), "Invoice can not be created");
         log.error(invoiceCanNotBeCreatedException.getMessage());
         return new ResponseEntity<>(canNotFoundThisResource, HttpStatus.BAD_REQUEST);

@@ -43,6 +43,7 @@ public class ResearchTitleServiceImpl implements ResearchTitleService {
         log.info("Update research title by id : {}", id);
         ResearchTitle researchTitle = researchTitleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Research Title not found"));
         researchTitle.setName(titleRequest.name());
+        researchTitle.setOpened(titleRequest.isOpened());
         return ResearchTitleMapper.toResponse(researchTitleRepository.save(researchTitle));
     }
 

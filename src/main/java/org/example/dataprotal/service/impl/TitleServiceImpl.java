@@ -43,6 +43,7 @@ public class TitleServiceImpl implements TitleService {
         log.info("Update title by id : {}", id);
         Title title = titleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         title.setName(titleRequest.name());
+        title.setOpened(titleRequest.isOpened());
         return TitleMapper.toResponse(titleRepository.save(title));
     }
 

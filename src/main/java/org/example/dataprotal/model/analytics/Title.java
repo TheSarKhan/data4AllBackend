@@ -22,6 +22,8 @@ public class Title {
 
     private String name;
 
+    private boolean isOpened;
+
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     @JsonManagedReference

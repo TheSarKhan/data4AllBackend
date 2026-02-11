@@ -14,6 +14,7 @@ public class TitleMapper {
         return new TitleResponse(
                 title.getId(),
                 title.getName(),
+                title.isOpened(),
                 toSubTitleResponse(title.getSubTitles())
         );
     }
@@ -25,6 +26,7 @@ public class TitleMapper {
     public static Title toEntity(TitleRequest titleRequest) {
         return Title.builder()
                 .name(titleRequest.name())
+                .isOpened(titleRequest.isOpened())
                 .build();
     }
 }

@@ -14,6 +14,7 @@ public class ResearchTitleMapper {
         return new ResearchTitleResponse(
                 title.getId(),
                 title.getName(),
+                title.isOpened(),
                 toSubTitleResponse(title.getSubTitles())
         );
     }
@@ -25,6 +26,7 @@ public class ResearchTitleMapper {
     public static ResearchTitle toEntity(ResearchTitleRequest titleRequest) {
         return ResearchTitle.builder()
                 .name(titleRequest.name())
+                .isOpened(titleRequest.isOpened())
                 .build();
     }
 }

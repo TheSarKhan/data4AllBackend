@@ -18,7 +18,8 @@ public class ResearchCardMapper {
                 researchCard.getSubTitle().getId(),
                 researchCard.getCreatedAt(),
                 researchCard.getViewCount(),
-                researchCard.getLikeCount()
+                researchCard.getLikeCount(),
+                researchCard.isOpened()
         );
     }
 
@@ -26,6 +27,7 @@ public class ResearchCardMapper {
         return ResearchCard.builder()
                 .topic(researchCardRequest.topic())
                 .content(researchCardRequest.content())
+                .isOpened(researchCardRequest.isOpened())
                 .subTitle(ResearchSubTitle.builder().id(researchCardRequest.subTitleId()).build())
                 .createdAt(Instant.now())
                 .build();
@@ -34,6 +36,7 @@ public class ResearchCardMapper {
     public static void updateResearchCard(ResearchCard researchCard, ResearchCardRequest researchCardRequest) {
         researchCard.setTopic(researchCardRequest.topic());
         researchCard.setContent(researchCardRequest.content());
+        researchCard.setOpened(researchCardRequest.isOpened());
         researchCard.setSubTitle(ResearchSubTitle.builder().id(researchCardRequest.subTitleId()).build());
     }
 }

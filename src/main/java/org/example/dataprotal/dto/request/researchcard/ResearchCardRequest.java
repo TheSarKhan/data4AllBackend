@@ -4,5 +4,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public record ResearchCardRequest(String topic, String content,
 
-                                  MultipartFile multipartFile, Long subTitleId) {
+                                  MultipartFile multipartFile, Long subTitleId, boolean isOpened) {
 }

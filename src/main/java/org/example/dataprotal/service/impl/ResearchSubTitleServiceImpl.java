@@ -52,6 +52,7 @@ public class ResearchSubTitleServiceImpl implements ResearchSubTitleService {
         researchSubTitle.setName(subTitleRequest.name());
         ResearchTitle researchTitle = researchTitleRepository.findById(subTitleRequest.titleId()).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         researchSubTitle.setTitle(researchTitle);
+        researchSubTitle.setOpened(subTitleRequest.isOpened());
         return ResearchSubTitleMapper.toResponse(researchSubTitleRepository.save(researchSubTitle));
     }
 

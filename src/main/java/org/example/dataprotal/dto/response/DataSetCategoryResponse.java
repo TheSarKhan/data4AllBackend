@@ -4,5 +4,5 @@ public record DataSetCategoryResponse(Long id, String name,
 
                                       String description,
 
-                                      String iconUrl) {
+                                      String iconUrl, boolean isOpened) {
 }

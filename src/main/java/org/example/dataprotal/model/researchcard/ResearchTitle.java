@@ -23,6 +23,8 @@ public class ResearchTitle {
     @Column(nullable = false)
     private String name;
 
+    private boolean isOpened;
+
     @OneToMany(mappedBy = "title", fetch = FetchType.EAGER)
     @Builder.Default
     @JsonManagedReference

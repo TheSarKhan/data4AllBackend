@@ -32,6 +32,8 @@ public class ResearchCard {
     @Builder.Default
     private Long likeCount = 0L;
 
+    private boolean isOpened;
+
     @ManyToOne
     @JoinColumn(name = "sub_title_id")
     @JsonBackReference

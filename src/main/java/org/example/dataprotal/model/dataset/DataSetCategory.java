@@ -2,6 +2,7 @@ package org.example.dataprotal.model.dataset;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.util.List;
 
 @Entity
@@ -15,15 +16,17 @@ public class DataSetCategory {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
+    private Long id;
 
     @Column(unique = true, nullable = false)
-    String name;
+    private String name;
 
-    String description;
+    private String description;
 
-    String iconUrl;
+    private String iconUrl;
+
+    private boolean isOpened;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
-    List<DataSet> datasets;
+    private List<DataSet> datasets;
 }

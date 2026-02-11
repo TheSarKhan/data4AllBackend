@@ -27,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -50,13 +51,15 @@ public class DataSetService {
                 .name(request.name())
                 .description(request.description())
                 .iconUrl(iconUrl)
+                .isOpened(request.isOpened())
                 .build();
         DataSetCategory saved = categoryRepository.save(category);
         return new DataSetCategoryResponse(
                 saved.getId(),
                 saved.getName(),
                 saved.getDescription(),
-                saved.getIconUrl()
+                saved.getIconUrl(),
+                saved.isOpened()
         );
     }
 
@@ -178,7 +181,39 @@ public class DataSetService {
 
     public List<DataSetCategoryResponse> getAllCategories() {
         return categoryRepository.findAll().stream().map(category ->
-                new DataSetCategoryResponse(category.getId(), category.getName(), category.getDescription(), category.getIconUrl())).toList();
+                new DataSetCategoryResponse(category.getId(), category.getName(), category.getDescription(), category.getIconUrl(),
+                        category.isOpened())).toList();
+    }
+
+    public DataSetCategoryResponse updateCategory(Long id, DataSetCategoryRequest request) throws IOException {
+        DataSetCategory category = categoryRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Category not found"));
+
+        if (request.icon() != null && !request.icon().isEmpty()) {
+            fileService.deleteFile(category.getIconUrl());
+            String url = fileService.uploadFile(request.icon());
+            category.setIconUrl(url);
+        }
+        if (request.name() != null && !request.name().isEmpty()) {
+            category.setName(request.name());
+        }
+        if (request.description() != null && !request.description().isEmpty()) {
+            category.setDescription(request.description());
+        }
+        category.setOpened(request.isOpened());
+
+        DataSetCategory saved = categoryRepository.save(category);
+        return new DataSetCategoryResponse(
+                saved.getId(),
+                saved.getName(),
+                saved.getDescription(),
+                saved.getIconUrl(),
+                saved.isOpened()
+        );
+    }
+    public void deleteCategory(Long id) throws IOException {
+        DataSetCategory category = categoryRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Category not found"));
+        fileService.deleteFile(category.getIconUrl());
+        categoryRepository.deleteById(id);
     }
 
     public List<DataSet> getAllDataSet() {
@@ -187,7 +222,7 @@ public class DataSetService {
 
     public byte[] downloadDataSetFile(Long datasetId) throws Exception {
         DataSet dataSet = repository.findById(datasetId)
-                .orElseThrow(() -> new RuntimeException("Can not found dataset with id: " + datasetId));
+                .orElseThrow(() -> new ResourceCanNotFoundException("Can not found dataset with id: " + datasetId));
         return fileService.readFile(dataSet.getFileUrl());
     }
 

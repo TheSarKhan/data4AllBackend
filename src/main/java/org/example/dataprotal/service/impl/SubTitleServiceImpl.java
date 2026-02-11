@@ -51,6 +51,7 @@ public class SubTitleServiceImpl implements SubTitleService {
         subTitle.setName(subTitleRequest.name());
         Title title = titleRepository.findById(subTitleRequest.titleId()).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         subTitle.setTitle(title);
+        subTitle.setOpened(subTitleRequest.isOpened());
         return SubTitleMapper.toResponse(subTitleRepository.save(subTitle));
     }
 

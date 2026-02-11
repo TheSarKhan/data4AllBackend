@@ -10,6 +10,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
+import org.example.dataprotal.exception.NotActiveException;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.AnalyticMapper;
 import org.example.dataprotal.model.analytics.Analytic;

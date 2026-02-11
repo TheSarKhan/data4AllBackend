@@ -29,6 +29,8 @@ public class ResearchSubTitle {
     @JsonBackReference
     private ResearchTitle title;
 
+    private boolean isOpened;
+
     @OneToMany(mappedBy = "subTitle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
     @Builder.Default
     @JsonManagedReference

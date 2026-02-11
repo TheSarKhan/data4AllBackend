@@ -25,6 +25,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -133,6 +134,19 @@ public class AdminDashboardController {
     @Operation(summary = "Delete data set", description = "Deletes data set")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         dataSetService.softDelete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping(path = "/updateCategory/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Update category", description = "Updates category")
+    public ResponseEntity<DataSetCategoryResponse> updateCategory(@PathVariable Long id, @ModelAttribute DataSetCategoryRequest request) throws IOException {
+        return ResponseEntity.ok(dataSetService.updateCategory(id, request));
+    }
+
+    @DeleteMapping("/deleteCategory/{id}")
+    @Operation(summary = "Delete data set category", description = "Deletes data set category")
+    public ResponseEntity<Void> deleteCategory(@PathVariable Long id) throws IOException {
+        dataSetService.deleteCategory(id);
         return ResponseEntity.noContent().build();
     }
 }
