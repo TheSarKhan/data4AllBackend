@@ -7,6 +7,7 @@ import jakarta.security.auth.message.AuthException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.researchcard.ResearchCardRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchCardRequest;
 import org.example.dataprotal.dto.response.researchcard.ResearchCardResponse;
 import org.example.dataprotal.service.ResearchCardService;
 import org.springframework.core.io.Resource;
@@ -82,7 +83,7 @@ public class ResearchCardController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ResearchCardResponse> update(
             @PathVariable Long id,
-            @ModelAttribute ResearchCardRequest request) throws IOException {
+            @ModelAttribute UpdatedResearchCardRequest request) throws IOException {
         return ResponseEntity.ok(researchCardService.update(id, request));
     }
 
@@ -92,5 +93,12 @@ public class ResearchCardController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         researchCardService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{cardId}/change-opened-status")
+    @Operation(summary = "Change opened status of research card", description = "Changes opened status of research card")
+    public ResponseEntity<Void> changeOpenedStatus(@PathVariable Long cardId, @RequestParam boolean isOpened) {
+        researchCardService.changeOpenedStatus(cardId, isOpened);
+        return ResponseEntity.ok().build();
     }
 }

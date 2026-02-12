@@ -3,6 +3,7 @@ package org.example.dataprotal.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.researchcard.ResearchTitleRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchTitle;
 import org.example.dataprotal.dto.response.researchcard.ResearchTitleResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.researchcard.ResearchTitleMapper;
@@ -39,11 +40,10 @@ public class ResearchTitleServiceImpl implements ResearchTitleService {
     }
 
     @Override
-    public ResearchTitleResponse update(Long id, ResearchTitleRequest titleRequest) {
+    public ResearchTitleResponse update(Long id, UpdatedResearchTitle titleRequest) {
         log.info("Update research title by id : {}", id);
         ResearchTitle researchTitle = researchTitleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Research Title not found"));
         researchTitle.setName(titleRequest.name());
-        researchTitle.setOpened(titleRequest.isOpened());
         return ResearchTitleMapper.toResponse(researchTitleRepository.save(researchTitle));
     }
 
@@ -51,5 +51,14 @@ public class ResearchTitleServiceImpl implements ResearchTitleService {
     public void deleteById(Long id) {
         log.info("Delete research title by id : {}", id);
         researchTitleRepository.deleteById(id);
+    }
+
+    @Override
+    public void changeOpenedStatus(Long id, boolean isOpened) {
+        ResearchTitle researchTitle = researchTitleRepository.findById(id).orElseThrow(() ->
+                new ResourceCanNotFoundException("Research Title not found"));
+        researchTitle.setOpened(isOpened);
+        researchTitleRepository.save(researchTitle);
+        log.info("Change opened status of research title with id : {} to {}", id, isOpened);
     }
 }

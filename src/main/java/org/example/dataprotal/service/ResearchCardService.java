@@ -2,6 +2,7 @@ package org.example.dataprotal.service;
 
 import jakarta.security.auth.message.AuthException;
 import org.example.dataprotal.dto.request.researchcard.ResearchCardRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchCardRequest;
 import org.example.dataprotal.dto.response.researchcard.ResearchCardResponse;
 import org.springframework.core.io.Resource;
 
@@ -17,7 +18,7 @@ public interface ResearchCardService {
 
     ResearchCardResponse save(ResearchCardRequest analyticRequest) throws IOException;
 
-    ResearchCardResponse update(Long id, ResearchCardRequest analyticRequest) throws IOException;
+    ResearchCardResponse update(Long id, UpdatedResearchCardRequest analyticRequest) throws IOException;
 
     List<ResearchCardResponse> getBySubTitleId(Long subTitleId);
 
@@ -28,4 +29,6 @@ public interface ResearchCardService {
     void toggleLike(Long cardId) throws AuthException;
 
     Resource getFile(String storedName) throws MalformedURLException;
+
+    void changeOpenedStatus(Long cardId, boolean isOpened);
 }

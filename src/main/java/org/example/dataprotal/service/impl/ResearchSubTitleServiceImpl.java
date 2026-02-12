@@ -3,6 +3,7 @@ package org.example.dataprotal.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.researchcard.ResearchSubTitleRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchSubtitle;
 import org.example.dataprotal.dto.response.researchcard.ResearchSubTitleResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.researchcard.ResearchSubTitleMapper;
@@ -46,13 +47,12 @@ public class ResearchSubTitleServiceImpl implements ResearchSubTitleService {
     }
 
     @Override
-    public ResearchSubTitleResponse update(Long id, ResearchSubTitleRequest subTitleRequest) {
+    public ResearchSubTitleResponse update(Long id, UpdatedResearchSubtitle subTitleRequest) {
         log.info("Update subtitle by id : {}", id);
         ResearchSubTitle researchSubTitle = researchSubTitleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
         researchSubTitle.setName(subTitleRequest.name());
         ResearchTitle researchTitle = researchTitleRepository.findById(subTitleRequest.titleId()).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         researchSubTitle.setTitle(researchTitle);
-        researchSubTitle.setOpened(subTitleRequest.isOpened());
         return ResearchSubTitleMapper.toResponse(researchSubTitleRepository.save(researchSubTitle));
     }
 
@@ -74,5 +74,16 @@ public class ResearchSubTitleServiceImpl implements ResearchSubTitleService {
 
         subTitle.getResearchCards().clear();
         researchSubTitleRepository.delete(subTitle);
+    }
+
+    @Override
+    public void changeOpenedStatus(Long id, boolean isOpened) {
+        ResearchSubTitle subTitle = researchSubTitleRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+
+        subTitle.setOpened(isOpened);
+        researchSubTitleRepository.save(subTitle);
+
+        log.info("Change opened status of subtitle with id : {} to {}", id, isOpened);
     }
 }

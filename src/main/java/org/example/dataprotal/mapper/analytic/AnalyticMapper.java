@@ -19,12 +19,21 @@ import java.util.stream.Collectors;
 public class AnalyticMapper {
 
     public static AnalyticResponse toResponse(Analytic analytic) {
+
+        Long subTitleId = null;
+        String subTitleName = null;
+
+        if (analytic.getSubTitle() != null) {
+            subTitleId = analytic.getSubTitle().getId();
+            subTitleName = analytic.getSubTitle().getName();
+        }
+
         return new AnalyticResponse(
                 analytic.getId(),
                 analytic.getName(),
                 analytic.getCoverImage(),
-                analytic.getSubTitle().getId(),
-                analytic.getSubTitle().getName(),
+                subTitleId,
+                subTitleName,
                 analytic.isOpened(),
                 toEmbedLinkResponse(analytic.getEmbedLinks())
         );
@@ -64,7 +73,6 @@ public class AnalyticMapper {
             UpdatedAnalyticRequest request
     ) {
         analytic.setName(request.name());
-        analytic.setOpened(request.isOpened());
 
         Map<Long, EmbedLink> existingLinks = analytic.getEmbedLinks().stream()
                 .filter(l -> l.getId() != null)

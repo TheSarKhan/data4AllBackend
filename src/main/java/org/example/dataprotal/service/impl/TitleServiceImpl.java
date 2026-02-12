@@ -3,6 +3,7 @@ package org.example.dataprotal.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.analytic.TitleRequest;
+import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticTitle;
 import org.example.dataprotal.dto.response.analytic.TitleResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.TitleMapper;
@@ -39,11 +40,10 @@ public class TitleServiceImpl implements TitleService {
     }
 
     @Override
-    public TitleResponse update(Long id, TitleRequest titleRequest) {
+    public TitleResponse update(Long id, UpdatedAnalyticTitle titleRequest) {
         log.info("Update title by id : {}", id);
         Title title = titleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         title.setName(titleRequest.name());
-        title.setOpened(titleRequest.isOpened());
         return TitleMapper.toResponse(titleRepository.save(title));
     }
 
@@ -51,5 +51,13 @@ public class TitleServiceImpl implements TitleService {
     public void deleteById(Long id) {
         log.info("Delete title by id : {}", id);
         titleRepository.deleteById(id);
+    }
+
+    @Override
+    public void changeOpenedStatus(Long id, boolean isOpened) {
+        Title title = titleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
+        title.setOpened(isOpened);
+        titleRepository.save(title);
+        log.info("Change opened status of title with id : {} to {}", id, isOpened);
     }
 }

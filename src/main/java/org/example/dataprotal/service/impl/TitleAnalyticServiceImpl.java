@@ -10,7 +10,6 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
-import org.example.dataprotal.exception.NotActiveException;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.AnalyticMapper;
 import org.example.dataprotal.model.analytics.Analytic;
@@ -163,5 +162,14 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
             workbook.write(out);
             return new ByteArrayInputStream(out.toByteArray());
         }
+    }
+
+    @Override
+    public void changeOpenedStatus(Long id, boolean isOpened) {
+        Analytic analytic = analyticRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
+        analytic.setOpened(isOpened);
+        analyticRepository.save(analytic);
+        log.info("Change opened status of analytic with id : {} to {}", id, isOpened);
     }
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.analytic.SubTitleRequest;
+import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticSubtitle;
 import org.example.dataprotal.dto.response.analytic.SubTitleResponse;
 import org.example.dataprotal.service.SubTitleService;
 import org.springframework.http.HttpStatus;
@@ -50,7 +51,7 @@ public class SubTitleController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update subtitle", description = "Updates an existing subtitle")
-    public ResponseEntity<SubTitleResponse> update(@PathVariable Long id, @RequestBody SubTitleRequest request) {
+    public ResponseEntity<SubTitleResponse> update(@PathVariable Long id, @RequestBody UpdatedAnalyticSubtitle request) {
         return ResponseEntity.ok(subTitleService.update(id, request));
     }
 
@@ -59,5 +60,12 @@ public class SubTitleController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         subTitleService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/opened")
+    @Operation(summary = "Change opened status of subtitle", description = "Changes opened status of subtitle by ID")
+    public ResponseEntity<Void> changeOpenedStatus(@PathVariable Long id, @RequestParam boolean isOpened) {
+        subTitleService.changeOpenedStatus(id, isOpened);
+        return ResponseEntity.ok().build();
     }
 }

@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.analytic.TitleRequest;
+import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticTitle;
 import org.example.dataprotal.dto.response.analytic.TitleResponse;
 import org.example.dataprotal.service.TitleService;
 import org.springframework.http.HttpStatus;
@@ -43,7 +44,7 @@ public class TitleController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update title", description = "Updates an existing title")
-    public ResponseEntity<TitleResponse> update(@PathVariable Long id, @RequestBody TitleRequest request) {
+    public ResponseEntity<TitleResponse> update(@PathVariable Long id, @RequestBody UpdatedAnalyticTitle request) {
         return ResponseEntity.ok(titleService.update(id, request));
     }
 
@@ -52,5 +53,12 @@ public class TitleController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         titleService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/opened")
+    @Operation(summary = "Change opened status of title", description = "Changes opened status of title by ID")
+    public ResponseEntity<Void> changeOpenedStatus(@PathVariable Long id, @RequestParam boolean isOpened) {
+        titleService.changeOpenedStatus(id, isOpened);
+        return ResponseEntity.ok().build();
     }
 }

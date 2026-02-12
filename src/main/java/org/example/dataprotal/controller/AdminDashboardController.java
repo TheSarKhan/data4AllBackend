@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.DataSetCategoryRequest;
-import org.example.dataprotal.dto.request.DataSetRequest;
+import org.example.dataprotal.dto.request.UpdatedDatasetCategory;
+import org.example.dataprotal.dto.request.UpdatedDatasetRequest;
 import org.example.dataprotal.dto.response.DashboardResponse;
 import org.example.dataprotal.dto.response.DataSetCategoryResponse;
 import org.example.dataprotal.dto.response.DataSetResponse;
@@ -85,7 +86,6 @@ public class AdminDashboardController {
         return ResponseEntity.ok(dataSetService.getDataSetsByInternId(internId));
     }
 
-
     @GetMapping("/datasets/read-file/{id}")
     @Operation(summary = "Read data set file", description = "Reads data set file")
     public ResponseEntity<ByteArrayResource> readDataSetFile(@PathVariable Long id) throws Exception {
@@ -108,7 +108,7 @@ public class AdminDashboardController {
     @Operation(summary = "Update dataset")
     public ResponseEntity<DataSetResponse> updateDataSet(
             @PathVariable Long id,
-            @RequestPart("data") @Valid DataSetRequest request,
+            @RequestPart("data") @Valid UpdatedDatasetRequest request,
             @RequestPart(value = "file", required = false) MultipartFile file,
             @RequestPart(value = "image", required = false) MultipartFile image
     ) {
@@ -137,9 +137,9 @@ public class AdminDashboardController {
         return ResponseEntity.noContent().build();
     }
 
-    @PutMapping(path = "/updateCategory/{id}",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(path = "/updateCategory/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Update category", description = "Updates category")
-    public ResponseEntity<DataSetCategoryResponse> updateCategory(@PathVariable Long id, @ModelAttribute DataSetCategoryRequest request) throws IOException {
+    public ResponseEntity<DataSetCategoryResponse> updateCategory(@PathVariable Long id, @ModelAttribute UpdatedDatasetCategory request) throws IOException {
         return ResponseEntity.ok(dataSetService.updateCategory(id, request));
     }
 
@@ -148,5 +148,19 @@ public class AdminDashboardController {
     public ResponseEntity<Void> deleteCategory(@PathVariable Long id) throws IOException {
         dataSetService.deleteCategory(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/category/{id}/opened")
+    @Operation(summary = "Change opened status of category", description = "Changes opened status of category by ID")
+    public ResponseEntity<Void> changeCategoryOpenedStatus(@PathVariable Long id, @RequestParam boolean isOpened) {
+        dataSetService.changeCategoryOpenedStatus(id, isOpened);
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/dataset/{id}/opened")
+    @Operation(summary = "Change opened status of dataset", description = "Changes opened status of dataset by ID")
+    public ResponseEntity<Void> changeDataSetOpenedStatus(@PathVariable Long id, @RequestParam boolean isOpened) {
+        dataSetService.changeDataSetOpenedStatus(id, isOpened);
+        return ResponseEntity.ok().build();
     }
 }

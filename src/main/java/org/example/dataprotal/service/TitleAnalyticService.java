@@ -24,4 +24,6 @@ public interface TitleAnalyticService {
     void deleteById(Long id);
 
     ByteArrayInputStream exportToExcel() throws IOException;
+
+    void changeOpenedStatus(Long id, boolean isOpened);
 }

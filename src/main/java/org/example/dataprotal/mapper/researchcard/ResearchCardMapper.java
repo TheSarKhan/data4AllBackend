@@ -1,6 +1,7 @@
 package org.example.dataprotal.mapper.researchcard;
 
 import org.example.dataprotal.dto.request.researchcard.ResearchCardRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchCardRequest;
 import org.example.dataprotal.dto.response.researchcard.ResearchCardResponse;
 import org.example.dataprotal.model.researchcard.ResearchCard;
 import org.example.dataprotal.model.researchcard.ResearchSubTitle;
@@ -33,10 +34,9 @@ public class ResearchCardMapper {
                 .build();
     }
 
-    public static void updateResearchCard(ResearchCard researchCard, ResearchCardRequest researchCardRequest) {
+    public static void updateResearchCard(ResearchCard researchCard, UpdatedResearchCardRequest researchCardRequest) {
         researchCard.setTopic(researchCardRequest.topic());
         researchCard.setContent(researchCardRequest.content());
-        researchCard.setOpened(researchCardRequest.isOpened());
         researchCard.setSubTitle(ResearchSubTitle.builder().id(researchCardRequest.subTitleId()).build());
     }
 }

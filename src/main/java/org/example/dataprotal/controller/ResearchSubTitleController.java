@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.researchcard.ResearchSubTitleRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchSubtitle;
 import org.example.dataprotal.dto.response.researchcard.ResearchSubTitleResponse;
 import org.example.dataprotal.service.ResearchSubTitleService;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,6 @@ import java.util.List;
 @PreAuthorize("hasRole('ADMIN') ")
 public class ResearchSubTitleController {
     private final ResearchSubTitleService researchSubTitleService;
-
 
     @GetMapping
     @Operation(summary = "Get all subtitles", description = "Returns all subtitles")
@@ -50,7 +50,7 @@ public class ResearchSubTitleController {
 
     @PutMapping("/{id}")
     @Operation(summary = "Update subtitle", description = "Updates an existing subtitle")
-    public ResponseEntity<ResearchSubTitleResponse> update(@PathVariable Long id, @RequestBody ResearchSubTitleRequest request) {
+    public ResponseEntity<ResearchSubTitleResponse> update(@PathVariable Long id, @RequestBody UpdatedResearchSubtitle request) {
         return ResponseEntity.ok(researchSubTitleService.update(id, request));
     }
 
@@ -59,5 +59,12 @@ public class ResearchSubTitleController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         researchSubTitleService.deleteById(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/{id}/opened")
+    @Operation(summary = "Change opened status of subtitle", description = "Changes opened status of subtitle by ID")
+    public ResponseEntity<Void> changeOpenedStatus(@PathVariable Long id, @RequestParam boolean isOpened) {
+        researchSubTitleService.changeOpenedStatus(id, isOpened);
+        return ResponseEntity.ok().build();
     }
 }

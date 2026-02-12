@@ -5,6 +5,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 
 public record UpdatedAnalyticRequest(String name, MultipartFile coverImage,
-                                     Long subTitleId, boolean isOpened,
+                                     Long subTitleId,
                                      List<UpdateEmbedLinkRequest> embedLinks) {
 }

@@ -2,9 +2,12 @@ package org.example.dataprotal.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.DataSetQueryDto;
 import org.example.dataprotal.dto.request.DataSetCategoryRequest;
 import org.example.dataprotal.dto.request.DataSetRequest;
+import org.example.dataprotal.dto.request.UpdatedDatasetCategory;
+import org.example.dataprotal.dto.request.UpdatedDatasetRequest;
 import org.example.dataprotal.dto.response.DataSetCategoryResponse;
 import org.example.dataprotal.dto.response.DataSetResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
@@ -34,6 +37,7 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class DataSetService {
     private final DataSetRepository repository;
     private final DataSetMapper dataSetMapper;
@@ -108,7 +112,7 @@ public class DataSetService {
     @SneakyThrows
     public DataSetResponse updateDataSet(
             Long id,
-            DataSetRequest dto,
+            UpdatedDatasetRequest dto,
             MultipartFile file,
             MultipartFile img
     ) {
@@ -142,7 +146,6 @@ public class DataSetService {
         existing.setDataSetName(dto.getDataSetName());
         existing.setTitle(dto.getTitle());
         existing.setDescription(dto.getDescription());
-        existing.setOpened(dto.isOpened());
 
         DataSet saved = repository.save(existing);
         return dataSetMapper.toResponseDto(saved);
@@ -185,7 +188,7 @@ public class DataSetService {
                         category.isOpened())).toList();
     }
 
-    public DataSetCategoryResponse updateCategory(Long id, DataSetCategoryRequest request) throws IOException {
+    public DataSetCategoryResponse updateCategory(Long id, UpdatedDatasetCategory request) throws IOException {
         DataSetCategory category = categoryRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Category not found"));
 
         if (request.icon() != null && !request.icon().isEmpty()) {
@@ -199,7 +202,6 @@ public class DataSetService {
         if (request.description() != null && !request.description().isEmpty()) {
             category.setDescription(request.description());
         }
-        category.setOpened(request.isOpened());
 
         DataSetCategory saved = categoryRepository.save(category);
         return new DataSetCategoryResponse(
@@ -210,6 +212,7 @@ public class DataSetService {
                 saved.isOpened()
         );
     }
+
     public void deleteCategory(Long id) throws IOException {
         DataSetCategory category = categoryRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Category not found"));
         fileService.deleteFile(category.getIconUrl());
@@ -265,5 +268,22 @@ public class DataSetService {
         repository.save(dataSet);
     }
 
+    public void changeCategoryOpenedStatus(Long id, boolean isOpened) {
+        DataSetCategory category = categoryRepository.findById(id).orElseThrow(() ->
+                new ResourceCanNotFoundException("Category not found"));
+
+        category.setOpened(isOpened);
+        categoryRepository.save(category);
+        log.info("Change opened status of category with id : {} to {}", id, isOpened);
+    }
+
+    public void changeDataSetOpenedStatus(Long id, boolean isOpened) {
+        DataSet dataSet = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Dataset not found"));
+
+        dataSet.setOpened(isOpened);
+        repository.save(dataSet);
+        log.info("Change opened status of dataset with id : {} to {}", id, isOpened);
+    }
 
 }

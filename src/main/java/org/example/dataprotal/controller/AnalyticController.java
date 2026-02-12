@@ -3,14 +3,12 @@ package org.example.dataprotal.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.analytic.AnalyticRequest;
 import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticRequest;
 import org.example.dataprotal.dto.response.analytic.AnalyticResponse;
 import org.example.dataprotal.service.TitleAnalyticService;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -69,7 +67,6 @@ public class AnalyticController {
                     request.name(),
                     coverImage,
                     request.subTitleId(),
-                    request.isOpened(),
                     request.embedLinks()
             );
         }
@@ -95,5 +92,12 @@ public class AnalyticController {
                 .headers(headers)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(in.readAllBytes());
+    }
+
+    @PostMapping("/{id}/opened")
+    @Operation(summary = "Change opened status of analytic", description = "Changes opened status of analytic by ID")
+    public ResponseEntity<Void> changeOpenedStatus(@PathVariable Long id, @RequestParam boolean isOpened) {
+        analyticService.changeOpenedStatus(id, isOpened);
+        return ResponseEntity.ok().build();
     }
 }

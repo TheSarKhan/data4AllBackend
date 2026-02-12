@@ -4,6 +4,7 @@ import jakarta.security.auth.message.AuthException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.researchcard.ResearchCardRequest;
+import org.example.dataprotal.dto.request.researchcard.UpdatedResearchCardRequest;
 import org.example.dataprotal.dto.response.researchcard.ResearchCardResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.researchcard.ResearchCardMapper;
@@ -62,7 +63,7 @@ public class ResearchCardServiceImpl implements ResearchCardService {
     }
 
     @Override
-    public ResearchCardResponse update(Long id, ResearchCardRequest researchCardRequest) throws IOException {
+    public ResearchCardResponse update(Long id, UpdatedResearchCardRequest researchCardRequest) throws IOException {
 
         log.info("Update research card by id : {}", id);
 
@@ -136,5 +137,14 @@ public class ResearchCardServiceImpl implements ResearchCardService {
             throw new ResourceCanNotFoundException("File not found");
         }
         return file;
+    }
+
+    @Override
+    public void changeOpenedStatus(Long cardId, boolean isOpened) {
+        ResearchCard researchCard = researchCardRepository.findById(cardId).orElseThrow(() ->
+                new ResourceCanNotFoundException("Research card not found"));
+        researchCard.setOpened(isOpened);
+        researchCardRepository.save(researchCard);
+        log.info("Change opened status of research card by id : {}", cardId);
     }
 }

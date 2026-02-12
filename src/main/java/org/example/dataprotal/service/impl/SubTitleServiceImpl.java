@@ -3,6 +3,7 @@ package org.example.dataprotal.service.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.analytic.SubTitleRequest;
+import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticSubtitle;
 import org.example.dataprotal.dto.response.analytic.SubTitleResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.SubTitleMapper;
@@ -45,13 +46,12 @@ public class SubTitleServiceImpl implements SubTitleService {
     }
 
     @Override
-    public SubTitleResponse update(Long id, SubTitleRequest subTitleRequest) {
+    public SubTitleResponse update(Long id, UpdatedAnalyticSubtitle subTitleRequest) {
         log.info("Update subtitle by id : {}", id);
         SubTitle subTitle = subTitleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
         subTitle.setName(subTitleRequest.name());
         Title title = titleRepository.findById(subTitleRequest.titleId()).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         subTitle.setTitle(title);
-        subTitle.setOpened(subTitleRequest.isOpened());
         return SubTitleMapper.toResponse(subTitleRepository.save(subTitle));
     }
 
@@ -86,4 +86,12 @@ public class SubTitleServiceImpl implements SubTitleService {
         subTitleRepository.flush();
     }
 
+    @Override
+    public void changeOpenedStatus(Long id, boolean isOpened) {
+        SubTitle subTitle = subTitleRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+        subTitle.setOpened(isOpened);
+        subTitleRepository.save(subTitle);
+        log.info("Change opened status of subtitle with id : {} to {}", id, isOpened);
+    }
 }
