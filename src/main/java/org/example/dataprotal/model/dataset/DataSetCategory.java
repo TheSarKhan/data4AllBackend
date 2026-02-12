@@ -25,6 +25,7 @@ public class DataSetCategory {
 
     private String iconUrl;
 
+    @Column(name = "is_opened")
     private boolean isOpened;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)

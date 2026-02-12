@@ -37,6 +37,7 @@ public class DataSet {
 
     String fileUrl;
 
+    @Column(name = "is_opened")
     boolean isOpened;
 
     @CreationTimestamp

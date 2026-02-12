@@ -29,6 +29,7 @@ public class SubTitle {
     @JsonIgnore
     private Title title;
 
+    @Column(name = "is_opened")
     private boolean isOpened;
 
     @OneToMany(mappedBy = "subTitle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

@@ -22,6 +22,7 @@ public class Title {
 
     private String name;
 
+    @Column(name = "is_opened")
     private boolean isOpened;
 
     @OneToMany(mappedBy = "title", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)

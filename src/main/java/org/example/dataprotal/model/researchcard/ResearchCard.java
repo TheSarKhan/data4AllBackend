@@ -32,6 +32,7 @@ public class ResearchCard {
     @Builder.Default
     private Long likeCount = 0L;
 
+    @Column(name = "is_opened")
     private boolean isOpened;
 
     @ManyToOne

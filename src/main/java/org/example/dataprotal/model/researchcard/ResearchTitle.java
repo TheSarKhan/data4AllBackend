@@ -23,6 +23,7 @@ public class ResearchTitle {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "is_opened")
     private boolean isOpened;
 
     @OneToMany(mappedBy = "title", fetch = FetchType.EAGER)

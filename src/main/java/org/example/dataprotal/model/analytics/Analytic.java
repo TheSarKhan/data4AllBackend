@@ -32,6 +32,7 @@ public class Analytic {
     @JsonBackReference
     private SubTitle subTitle;
 
+    @Column(name = "is_opened")
     private boolean isOpened;
 
     @OneToMany(
