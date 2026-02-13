@@ -17,6 +17,7 @@ import org.example.dataprotal.model.dataset.DataSetCategory;
 import org.example.dataprotal.model.dataset.DataSetQuery;
 import org.example.dataprotal.model.dataset.Intern;
 import org.example.dataprotal.model.enums.DataSetStatus;
+import org.example.dataprotal.model.user.User;
 import org.example.dataprotal.repository.dataset.DataSetCategoryRepository;
 import org.example.dataprotal.repository.dataset.DataSetQueryRepository;
 import org.example.dataprotal.repository.dataset.DataSetRepository;
@@ -45,6 +46,7 @@ public class DataSetService {
     private final DataSetQueryRepository dataSetQueryRepository;
     private final DataSetCategoryRepository categoryRepository;
     private final InternRepository internRepository;
+    private final UserService userService;
 
     public DataSetCategoryResponse createCategory(DataSetCategoryRequest request) throws Exception {
         String iconUrl = null;
@@ -73,6 +75,7 @@ public class DataSetService {
             MultipartFile file,
             MultipartFile img
     ) {
+        User currentUser = userService.getCurrentUser();
         String fileUrl = null;
         String imageUrl = null;
 
@@ -87,7 +90,7 @@ public class DataSetService {
                 .orElseThrow(() -> new RuntimeException("Category not found"));
 
         DataSet dataSet = new DataSet();
-        dataSet.setAuthor(dto.getAuthor());
+        dataSet.setAuthor(currentUser.getLastName() + " " + currentUser.getFirstName());
         dataSet.setDataSetName(dto.getDataSetName());
         dataSet.setTitle(dto.getTitle());
         dataSet.setDescription(dto.getDescription());

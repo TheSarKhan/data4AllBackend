@@ -12,7 +12,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class DataSetRequest {
-    private String author;
     private Long categoryId;
     private Long internId;
     private String dataSetName;

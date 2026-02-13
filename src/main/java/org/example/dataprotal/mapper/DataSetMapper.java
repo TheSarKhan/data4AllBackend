@@ -11,6 +11,7 @@ import org.mapstruct.Mapping;
 @Mapper(componentModel = "spring")
 public interface DataSetMapper {
     @Mapping(source = "categoryId", target = "category.id")
+    @Mapping(target = "author", ignore = true)
     DataSet dtoToEntity(DataSetRequest dataSetDto);
 
     DataSetQuery queryDtoToEntity(DataSetQueryDto dataSetQueryDto);

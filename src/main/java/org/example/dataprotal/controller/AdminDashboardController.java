@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.DataSetCategoryRequest;
+import org.example.dataprotal.dto.request.DataSetRequest;
 import org.example.dataprotal.dto.request.UpdatedDatasetCategory;
 import org.example.dataprotal.dto.request.UpdatedDatasetRequest;
 import org.example.dataprotal.dto.response.DashboardResponse;
@@ -25,8 +26,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import java.io.IOException;
+import java.net.URI;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +62,23 @@ public class AdminDashboardController {
         return ResponseEntity.status(HttpStatus.OK).body(dataSetService.createCategory(request));
     }
 
+    @PostMapping(value = "/dataset", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Operation(summary = "Upload new dataset")
+    public ResponseEntity<DataSetResponse> createDataSet(
+            @RequestPart("data") @Valid DataSetRequest request,
+            @RequestPart(value = "file", required = false) MultipartFile file,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        DataSetResponse response = dataSetService.createDataSet(request, file, image);
+
+        URI location = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(response.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(response);
+    }
     @GetMapping("/categories")
     @Operation(summary = "Get all categories", description = "Returns all categories")
     public List<DataSetCategoryResponse> getAllCategories() {
