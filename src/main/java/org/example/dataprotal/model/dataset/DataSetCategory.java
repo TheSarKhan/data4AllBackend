@@ -1,5 +1,6 @@
 package org.example.dataprotal.model.dataset;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,5 +30,7 @@ public class DataSetCategory {
     private boolean isOpened;
 
     @OneToMany(mappedBy = "category", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("category")
     private List<DataSet> datasets;
+
 }

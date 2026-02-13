@@ -4,7 +4,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.DataSetQueryDto;
-import org.example.dataprotal.model.dataset.DataSet;
+import org.example.dataprotal.dto.response.DataSetResponse;
 import org.example.dataprotal.model.dataset.DataSetQuery;
 import org.example.dataprotal.service.DataSetService;
 import org.springframework.http.ResponseEntity;
@@ -22,12 +22,12 @@ public class DataSetController {
 
     @GetMapping("/get/{dataSetName}")
     @Operation(description = "Get dataSet with name")
-    public ResponseEntity<DataSet> getDataSet(@PathVariable String dataSetName) {
+    public ResponseEntity<DataSetResponse> getDataSet(@PathVariable String dataSetName) {
         return ResponseEntity.ok(service.getDataSetByName(dataSetName));
     }
 
     @GetMapping("/get/all")
-    public ResponseEntity<List<DataSet>> getAllDataSet() {
+    public ResponseEntity<List<DataSetResponse>> getAllDataSet() {
         return ResponseEntity.ok(service.getAllDataSet());
     }
 

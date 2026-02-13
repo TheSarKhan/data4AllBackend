@@ -21,4 +21,6 @@ public interface DataSetRepository
     Page<DataSet> findByCategory_Name(String categoryName, Pageable pageable);
 
     List<DataSet> findByIntern_id(Long internId);
+
+    List<DataSet> findByCategory_Id(Long categoryId);
 }

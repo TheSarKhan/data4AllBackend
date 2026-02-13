@@ -7,7 +7,6 @@ import org.example.dataprotal.dto.request.analytic.UpdatedAnalyticSubtitle;
 import org.example.dataprotal.dto.response.analytic.SubTitleResponse;
 import org.example.dataprotal.exception.ResourceCanNotFoundException;
 import org.example.dataprotal.mapper.analytic.SubTitleMapper;
-import org.example.dataprotal.model.analytics.Analytic;
 import org.example.dataprotal.model.analytics.SubTitle;
 import org.example.dataprotal.model.analytics.Title;
 import org.example.dataprotal.repository.analytics.SubTitleRepository;
@@ -16,7 +15,6 @@ import org.example.dataprotal.service.SubTitleService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,18 +25,26 @@ public class SubTitleServiceImpl implements SubTitleService {
     private final TitleRepository titleRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<SubTitleResponse> getAll() {
         log.info("Get all subtitles");
-        return subTitleRepository.findAll().stream().map(SubTitleMapper::toResponse).toList();
+        return subTitleRepository.findAll()
+                .stream()
+                .map(SubTitleMapper::toResponse)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public SubTitleResponse getById(Long id) {
         log.info("Get subtitle by id : {}", id);
-        return SubTitleMapper.toResponse(subTitleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found")));
+        SubTitle subTitle = subTitleRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+        return SubTitleMapper.toResponse(subTitle);
     }
 
     @Override
+    @Transactional
     public SubTitleResponse save(SubTitleRequest subTitleRequest) {
         SubTitle subTitle = SubTitleMapper.toEntity(subTitleRequest);
         log.info("Save subtitle : {}", subTitle);
@@ -46,47 +52,47 @@ public class SubTitleServiceImpl implements SubTitleService {
     }
 
     @Override
+    @Transactional
     public SubTitleResponse update(Long id, UpdatedAnalyticSubtitle subTitleRequest) {
         log.info("Update subtitle by id : {}", id);
-        SubTitle subTitle = subTitleRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+        SubTitle subTitle = subTitleRepository.findById(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
         subTitle.setName(subTitleRequest.name());
-        Title title = titleRepository.findById(subTitleRequest.titleId()).orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
+        Title title = titleRepository.findById(subTitleRequest.titleId())
+                .orElseThrow(() -> new ResourceCanNotFoundException("Title not found"));
         subTitle.setTitle(title);
         return SubTitleMapper.toResponse(subTitleRepository.save(subTitle));
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SubTitleResponse> getByTitleId(Long titleId) {
         List<SubTitle> subTitles = subTitleRepository.findByTitleId(titleId);
-        return subTitles.stream().map(SubTitleMapper::toResponse).toList();
+        return subTitles.stream()
+                .map(SubTitleMapper::toResponse)
+                .toList();
     }
 
+    @Override
     @Transactional
-    @Override
     public void deleteById(Long id) {
-        SubTitle subTitle = subTitleRepository.findById(id)
-                .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));
+        log.info("Deleting subtitle with id: {}", id);
 
-        if (subTitle.getTitle() != null) {
-            subTitle.getTitle().getSubTitles().remove(subTitle);
-        }
-        if (subTitle.getAnalytics() != null && !subTitle.getAnalytics().isEmpty()) {
-            List<Analytic> analyticsToRemove = new ArrayList<>(subTitle.getAnalytics());
-            for (Analytic analytic : analyticsToRemove) {
-                analytic.setSubTitle(null);
-                if (analytic.getEmbedLinks() != null) {
-                    analytic.getEmbedLinks().clear();
-                }
-            }
-            subTitle.getAnalytics().clear();
+        if (!subTitleRepository.existsById(id)) {
+            throw new ResourceCanNotFoundException("Subtitle not found with id: " + id);
         }
 
-        log.info("Delete subtitle by id : {}", id);
-        subTitleRepository.delete(subTitle);
-        subTitleRepository.flush();
+        subTitleRepository.deleteEmbedLinksBySubtitleId(id);
+
+        subTitleRepository.deleteAnalyticsBySubtitleId(id);
+
+        subTitleRepository.deleteSubTitleByIdNative(id);
+
+        log.info("Successfully deleted subtitle with id: {}", id);
     }
 
     @Override
+    @Transactional
     public void changeOpenedStatus(Long id, boolean isOpened) {
         SubTitle subTitle = subTitleRepository.findById(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Subtitle not found"));

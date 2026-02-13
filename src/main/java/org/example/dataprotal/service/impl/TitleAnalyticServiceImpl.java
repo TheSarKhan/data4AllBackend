@@ -39,18 +39,26 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
     private final SubTitleRepository subTitleRepository;
 
     @Override
+    @Transactional(readOnly = true)
     public List<AnalyticResponse> getAll() {
         log.info("Get all analytics");
-        return analyticRepository.findAll().stream().map(AnalyticMapper::toResponse).toList();
+        return analyticRepository.findAllWithRelations()
+                .stream()
+                .map(AnalyticMapper::toResponse)
+                .toList();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public AnalyticResponse getById(Long id) {
         log.info("Get analytic by id : {}", id);
-        return AnalyticMapper.toResponse(analyticRepository.findById(id).orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found")));
+        Analytic analytic = analyticRepository.findByIdWithRelations(id)
+                .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
+        return AnalyticMapper.toResponse(analytic);
     }
 
     @Override
+    @Transactional
     public AnalyticResponse save(AnalyticRequest analyticRequest, MultipartFile image) throws IOException {
         Analytic analytic = AnalyticMapper.toEntity(analyticRequest);
         String coverImageUrl = fileService.uploadFile(image);
@@ -62,17 +70,24 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
         analytic.setSubTitle(subTitle);
 
         log.info("Save analytic : {}", analytic);
-        return AnalyticMapper.toResponse(analyticRepository.save(analytic));
+        Analytic saved = analyticRepository.save(analytic);
+
+        // Yenidən fetch et ki, response düzgün olsun
+        return AnalyticMapper.toResponse(
+                analyticRepository.findByIdWithRelations(saved.getId())
+                        .orElseThrow()
+        );
     }
 
     @Override
+    @Transactional
     public AnalyticResponse update(Long id, UpdatedAnalyticRequest analyticRequest) throws IOException {
         log.info("Update analytic by id : {}", id);
 
-        Analytic analytic = analyticRepository.findById(id)
+        Analytic analytic = analyticRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
 
-        analytic.getEmbedLinks().size();
+        // EmbedLinks silmə
         Iterator<EmbedLink> iterator = analytic.getEmbedLinks().iterator();
         while (iterator.hasNext()) {
             EmbedLink e = iterator.next();
@@ -100,23 +115,25 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
         return AnalyticMapper.toResponse(analytic);
     }
 
-
     @Override
+    @Transactional(readOnly = true)
     public List<AnalyticResponse> getBySubTitleId(Long subTitleId) {
-
-        List<Analytic> analytics = analyticRepository.findBySubTitleId(subTitleId);
-        return analytics.stream().map(AnalyticMapper::toResponse).toList();
+        List<Analytic> analytics = analyticRepository.findBySubTitleIdWithRelations(subTitleId);
+        return analytics.stream()
+                .map(AnalyticMapper::toResponse)
+                .toList();
     }
 
     @Transactional
     @Override
     public void deleteById(Long id) {
-        Analytic analytic = analyticRepository.findById(id)
+        Analytic analytic = analyticRepository.findByIdWithRelations(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));
 
         SubTitle subTitle = analytic.getSubTitle();
-
-        subTitle.getAnalytics().remove(analytic);
+        if (subTitle != null) {
+            subTitle.getAnalytics().remove(analytic);
+        }
         analytic.setSubTitle(null);
 
         log.info("Delete analytic by id : {}", id);
@@ -124,8 +141,9 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public ByteArrayInputStream exportToExcel() throws IOException {
-        List<Analytic> analytics = analyticRepository.findAll();
+        List<Analytic> analytics = analyticRepository.findAllWithRelations();
 
         try (Workbook workbook = new XSSFWorkbook(); ByteArrayOutputStream out = new ByteArrayOutputStream()) {
 
@@ -165,6 +183,7 @@ public class TitleAnalyticServiceImpl implements TitleAnalyticService {
     }
 
     @Override
+    @Transactional
     public void changeOpenedStatus(Long id, boolean isOpened) {
         Analytic analytic = analyticRepository.findById(id)
                 .orElseThrow(() -> new ResourceCanNotFoundException("Analytic not found"));

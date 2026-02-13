@@ -50,9 +50,15 @@ public class AdminDashboardController {
         return ResponseEntity.ok(dashboardService.getDashboard());
     }
 
+    @GetMapping("/getByCategoryId/{categoryId}")
+    @Operation(description = "Get dataSet by category id")
+    public ResponseEntity<List<DataSetResponse>> getDataSet(@PathVariable Long categoryId) {
+        return ResponseEntity.ok(dataSetService.getDataSetByCategoryId(categoryId));
+    }
+
     @GetMapping("/get/{dataSetName}")
     @Operation(description = "Get dataSet with name for admin")
-    public ResponseEntity<DataSet> getDataSet(@PathVariable String dataSetName) {
+    public ResponseEntity<DataSetResponse> getDataSet(@PathVariable String dataSetName) {
         return ResponseEntity.ok(dataSetService.getDataSetByNameForAdmin(dataSetName));
     }
 
@@ -79,6 +85,7 @@ public class AdminDashboardController {
 
         return ResponseEntity.created(location).body(response);
     }
+
     @GetMapping("/categories")
     @Operation(summary = "Get all categories", description = "Returns all categories")
     public List<DataSetCategoryResponse> getAllCategories() {
@@ -183,4 +190,26 @@ public class AdminDashboardController {
         dataSetService.changeDataSetOpenedStatus(id, isOpened);
         return ResponseEntity.ok().build();
     }
+
+    @GetMapping("/export-datasets")
+    @Operation(summary = "Export data sets to excel", description = "Exports data sets to excel")
+    public ResponseEntity<byte[]> exportExcel(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) DataSetStatus status,
+            @RequestParam(required = false) LocalDateTime from,
+            @RequestParam(required = false) LocalDateTime to
+    ) throws Exception {
+
+        byte[] excel = dataSetService.exportToExcel(
+                name, categoryId, status, from, to
+        );
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=datasets.xlsx")
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .body(excel);
+    }
+
 }

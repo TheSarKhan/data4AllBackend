@@ -10,6 +10,7 @@ import org.example.dataprotal.model.analytics.Analytic;
 import org.example.dataprotal.model.analytics.EmbedLink;
 
 import java.util.Base64;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -19,7 +20,6 @@ import java.util.stream.Collectors;
 public class AnalyticMapper {
 
     public static AnalyticResponse toResponse(Analytic analytic) {
-
         Long subTitleId = null;
         String subTitleName = null;
 
@@ -28,6 +28,10 @@ public class AnalyticMapper {
             subTitleName = analytic.getSubTitle().getName();
         }
 
+        List<EmbedLinkResponse> embedLinkResponses = analytic.getEmbedLinks() != null
+                ? toEmbedLinkResponse(analytic.getEmbedLinks())
+                : Collections.emptyList();
+
         return new AnalyticResponse(
                 analytic.getId(),
                 analytic.getName(),
@@ -35,19 +39,20 @@ public class AnalyticMapper {
                 subTitleId,
                 subTitleName,
                 analytic.isOpened(),
-                toEmbedLinkResponse(analytic.getEmbedLinks())
+                embedLinkResponses
         );
     }
 
     private static List<EmbedLinkResponse> toEmbedLinkResponse(List<EmbedLink> embedLinks) {
-        return embedLinks.stream().map(embedLink -> new EmbedLinkResponse(
-                embedLink.getId(),
-                embedLink.getEmbedLink()
-        )).toList();
+        return embedLinks.stream()
+                .map(embedLink -> new EmbedLinkResponse(
+                        embedLink.getId(),
+                        embedLink.getEmbedLink()
+                ))
+                .toList();
     }
 
     public static Analytic toEntity(AnalyticRequest request) {
-
         Analytic analytic = Analytic.builder()
                 .name(request.name())
                 .isOpened(request.isOpened())
@@ -68,10 +73,7 @@ public class AnalyticMapper {
         return analytic;
     }
 
-    public static void updateAnalytic(
-            Analytic analytic,
-            UpdatedAnalyticRequest request
-    ) {
+    public static void updateAnalytic(Analytic analytic, UpdatedAnalyticRequest request) {
         analytic.setName(request.name());
 
         Map<Long, EmbedLink> existingLinks = analytic.getEmbedLinks().stream()
@@ -91,7 +93,6 @@ public class AnalyticMapper {
                 analytic.getEmbedLinks().add(newLink);
             }
         }
-
     }
 
     private static String safeDecode(String value) {
@@ -102,4 +103,3 @@ public class AnalyticMapper {
         }
     }
 }
-

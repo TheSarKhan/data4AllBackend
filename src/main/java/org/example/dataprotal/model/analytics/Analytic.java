@@ -27,8 +27,11 @@ public class Analytic {
     @Column(nullable = false)
     private String coverImage;
 
-    @ManyToOne
-    @JoinColumn(name = "sub_title_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(
+            name = "sub_title_id",
+            nullable = false
+    )
     @JsonBackReference
     private SubTitle subTitle;
 
@@ -39,7 +42,7 @@ public class Analytic {
             mappedBy = "analytic",
             cascade = CascadeType.ALL,
             orphanRemoval = true,
-            fetch = FetchType.EAGER
+            fetch = FetchType.LAZY
     )
     @Builder.Default
     @JsonManagedReference

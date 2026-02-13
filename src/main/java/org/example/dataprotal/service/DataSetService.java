@@ -3,6 +3,10 @@ package org.example.dataprotal.service;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.example.dataprotal.dto.DataSetQueryDto;
 import org.example.dataprotal.dto.request.DataSetCategoryRequest;
 import org.example.dataprotal.dto.request.DataSetRequest;
@@ -31,6 +35,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -154,12 +159,16 @@ public class DataSetService {
         return dataSetMapper.toResponseDto(saved);
     }
 
-    public DataSet getDataSetByName(String dataSetName) {
-        return repository.findByDataSetNameAndStatus(dataSetName, DataSetStatus.APPROVED);
+    public DataSetResponse getDataSetByName(String dataSetName) {
+        return dataSetMapper.toResponseDto(repository.findByDataSetNameAndStatus(dataSetName, DataSetStatus.APPROVED));
     }
 
-    public DataSet getDataSetByNameForAdmin(String dataSetName) {
-        return repository.findByDataSetName(dataSetName);
+    public List<DataSetResponse> getDataSetByCategoryId(Long categoryId) {
+        return repository.findByCategory_Id(categoryId).stream().map(dataSetMapper::toResponseDto).toList();
+    }
+
+    public DataSetResponse getDataSetByNameForAdmin(String dataSetName) {
+        return dataSetMapper.toResponseDto(repository.findByDataSetName(dataSetName));
     }
 
     public DataSetResponse getDataSetById(Long dataSetId) {
@@ -222,8 +231,8 @@ public class DataSetService {
         categoryRepository.deleteById(id);
     }
 
-    public List<DataSet> getAllDataSet() {
-        return repository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+    public List<DataSetResponse> getAllDataSet() {
+        return repository.findAll(Sort.by(Sort.Direction.ASC, "id")).stream().map(dataSetMapper::toResponseDto).toList();
     }
 
     public byte[] downloadDataSetFile(Long datasetId) throws Exception {
@@ -288,5 +297,62 @@ public class DataSetService {
         repository.save(dataSet);
         log.info("Change opened status of dataset with id : {} to {}", id, isOpened);
     }
+
+    public byte[] exportToExcel(String name,
+                                Long categoryId,
+                                DataSetStatus status,
+                                LocalDateTime from,
+                                LocalDateTime to) throws Exception {
+
+        Specification<DataSet> spec = Specification
+                .where(DataSetSpecification.hasName(name))
+                .and(DataSetSpecification.hasCategory(categoryId))
+                .and(DataSetSpecification.hasStatus(status))
+                .and(DataSetSpecification.createdAfter(from))
+                .and(DataSetSpecification.createdBefore(to));
+
+        List<DataSet> dataSets = repository.findAll(spec);
+
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Datasets");
+
+        Row header = sheet.createRow(0);
+        header.createCell(0).setCellValue("ID");
+        header.createCell(1).setCellValue("Title");
+        header.createCell(2).setCellValue("Author");
+        header.createCell(3).setCellValue("Category");
+        header.createCell(4).setCellValue("Status");
+        header.createCell(5).setCellValue("Created At");
+        header.createCell(6).setCellValue("Opened");
+
+        int rowNum = 1;
+
+        for (DataSet ds : dataSets) {
+            Row row = sheet.createRow(rowNum++);
+
+            row.createCell(0).setCellValue(ds.getId());
+            row.createCell(1).setCellValue(ds.getTitle());
+            row.createCell(2).setCellValue(ds.getAuthor());
+            row.createCell(3).setCellValue(
+                    ds.getCategory() != null ? ds.getCategory().getName() : ""
+            );
+            row.createCell(4).setCellValue(ds.getStatus().name());
+            row.createCell(5).setCellValue(
+                    ds.getCreatedAt() != null ? ds.getCreatedAt().toString() : ""
+            );
+            row.createCell(6).setCellValue(ds.isOpened());
+        }
+
+        for (int i = 0; i <= 6; i++) {
+            sheet.autoSizeColumn(i);
+        }
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        workbook.write(out);
+        workbook.close();
+
+        return out.toByteArray();
+    }
+
 
 }

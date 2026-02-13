@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import org.example.dataprotal.dto.response.QuestionResponse;
 import org.example.dataprotal.model.chatbot.Category;
 import org.example.dataprotal.model.chatbot.Question;
 import org.example.dataprotal.repository.chatbot.CategoryRepository;
@@ -23,7 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 @PreAuthorize("hasRole('ADMIN') ")
 @SecurityRequirement(name = "bearerAuth")
-@Tag(name = "Chatbot Controller",description = "Provides chatbot-related information for admin dashboard")
+@Tag(name = "Chatbot Controller", description = "Provides chatbot-related information for admin dashboard")
 public class ChatbotController {
     private final BotService botService;
     private final CategoryRepository categoryRepository;
@@ -42,13 +43,20 @@ public class ChatbotController {
     }
 
     @GetMapping("/getAllQuestions")
-    public List<Question> getAllQuestions() {
-        return questionRepository.findAll();
+    public List<QuestionResponse> getAllQuestions() {
+
+        List<Question> all = questionRepository.findAll();
+        return all.stream().map(question -> new QuestionResponse(
+                question.getId(),
+                question.getCategory().getId(),
+                question.getQuestion(),
+                question.getAnswer()
+        )).toList();
     }
 
     @PostMapping("/category/add")
     public ResponseEntity<Category> addCategory(@RequestParam String categoryName) {
-        Category category=Category.builder().categoryName(categoryName).build();
+        Category category = Category.builder().categoryName(categoryName).build();
         Category savedCategory = categoryRepository.save(category);
         return ResponseEntity.ok(savedCategory);
     }

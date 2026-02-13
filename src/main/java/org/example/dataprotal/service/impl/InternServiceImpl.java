@@ -34,6 +34,7 @@ public class InternServiceImpl implements InternService {
         intern.setName(internRequestDto.name());
         intern.setEmail(internRequestDto.email());
         intern.setPhone(internRequestDto.phone());
+        intern.setPosition(internRequestDto.status());
         return InternMapper.toResponseDto(internRepository.save(intern));
     }
 

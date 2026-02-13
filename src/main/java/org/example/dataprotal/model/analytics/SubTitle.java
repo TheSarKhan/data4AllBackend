@@ -32,7 +32,12 @@ public class SubTitle {
     @Column(name = "is_opened")
     private boolean isOpened;
 
-    @OneToMany(mappedBy = "subTitle", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @OneToMany(
+            mappedBy = "subTitle",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true,
+            fetch = FetchType.LAZY
+    )
     @Builder.Default
     @JsonManagedReference
     private List<Analytic> analytics = new ArrayList<>();
