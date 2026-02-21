@@ -4,7 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.dataprotal.dto.request.ContactFormRequest;
 import org.example.dataprotal.dto.response.ContactFormResponse;
-import org.example.dataprotal.dto.response.FaqResponse;
+import org.example.dataprotal.dto.response.FAQResponse;
+import org.example.dataprotal.dto.response.FagResponse;
 import org.example.dataprotal.dto.response.UserInstructionResponse;
 import org.example.dataprotal.enums.ApplicationType;
 import org.example.dataprotal.model.user.User;
@@ -50,7 +51,7 @@ public class SupportServiceImpl implements SupportService {
     }
 
     @Override
-    public FaqResponse getFagInfo(String language) {
+    public FagResponse getFagInfo(String language) {
         log.info("Get support headers and subheaders");
 
         Locale locale = generateLocale(language);
@@ -77,7 +78,7 @@ public class SupportServiceImpl implements SupportService {
         }
 
         String faqHeader = messageSource.getMessage("support.categories.fag", null, locale);
-        return new FaqResponse(faqHeader, headersSubHeadersAndTheirContentMap);
+        return new FagResponse(faqHeader, headersSubHeadersAndTheirContentMap);
     }
 
     @Override

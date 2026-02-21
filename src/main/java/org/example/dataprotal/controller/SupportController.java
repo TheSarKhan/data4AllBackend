@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.example.dataprotal.dto.request.ContactFormRequest;
 import org.example.dataprotal.dto.response.ContactFormResponse;
-import org.example.dataprotal.dto.response.FaqResponse;
+import org.example.dataprotal.dto.response.FAQResponse;
+import org.example.dataprotal.dto.response.FagResponse;
 import org.example.dataprotal.dto.response.UserInstructionResponse;
 import org.example.dataprotal.service.SupportService;
 import org.springframework.http.ResponseEntity;
@@ -32,7 +33,7 @@ public class SupportController {
     @GetMapping("/faq/{language}")
     @Operation(summary = "Get FAQ information",
             description = "Retrieves frequently asked questions and answers.")
-    public ResponseEntity<FaqResponse> getFagInfo(@PathVariable String language){
+    public ResponseEntity<FagResponse> getFagInfo(@PathVariable String language){
         return ResponseEntity.ok(supportService.getFagInfo(language));
     }
 
