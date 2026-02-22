@@ -55,8 +55,8 @@ public class AdminDashboardController {
     public ResponseEntity<List<DataSetResponse>> getDataSet(@PathVariable Long categoryId) {
         return ResponseEntity.ok(dataSetService.getDataSetByCategoryId(categoryId));
     }
-
-    @GetMapping("/get/{dataSetName}")
+    // TODO: deyisecek
+    @GetMapping("/get-name/{dataSetName}")
     @Operation(description = "Get dataSet with name for admin")
     public ResponseEntity<DataSetResponse> getDataSet(@PathVariable String dataSetName) {
         return ResponseEntity.ok(dataSetService.getDataSetByNameForAdmin(dataSetName));
@@ -68,7 +68,7 @@ public class AdminDashboardController {
         return ResponseEntity.status(HttpStatus.OK).body(dataSetService.createCategory(request));
     }
 
-    @PostMapping(value = "/dataset", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @GetMapping(value = "/dataset", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Operation(summary = "Upload new dataset")
     public ResponseEntity<DataSetResponse> createDataSet(
             @RequestPart("data") @Valid DataSetRequest request,
@@ -100,8 +100,8 @@ public class AdminDashboardController {
                                                                        @RequestParam int offset) {
         return ResponseEntity.ok(dataSetService.getDataSetByCategory(category, offset, 5));
     }
-
-    @GetMapping("/get/{datasetId}")
+    // TODO: bu ikisi kesisir
+    @GetMapping("/get-id/{datasetId}")
     @Operation(description = "Get dataSet with id")
     public ResponseEntity<DataSetResponse> getDataSetById(@PathVariable Long datasetId) {
         return ResponseEntity.ok(dataSetService.getDataSetById(datasetId));
